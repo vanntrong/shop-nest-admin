@@ -1,0 +1,21 @@
+:root {
+	--primary: #ee9109;
+	--secondary: #505050;
+
+	--bg-primary: #ffffff;
+	--bg-primary-2: #fafafa;
+	--bg-gray: #efefef --text-primary: #0c192d;
+	--text-link: #254d8e;
+	--text-link-hover: #3c64a7;
+	--text-secondary: white;
+
+	--error: #e02020;
+	--success: #0ec182;
+
+	--btn-primary: #F4AC20;
+	--btn-secondary: #ffd1ba;
+}
+
+[data-theme="dark"] {
+	/* Dark mode */
+}
