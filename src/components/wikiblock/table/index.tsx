@@ -15,6 +15,7 @@ interface Props extends TableProps<any> {
   columns: ColumnsType<any>;
   api?: string;
   filter?: any;
+  hideActions?: boolean;
 }
 
 interface Params {
@@ -28,7 +29,7 @@ interface Params {
 
 const { Search } = Input;
 
-export const WikiTable: FC<Props> = ({ name, columns, api, filter, ...props }) => {
+export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions = false, ...props }) => {
   const { formatMessage } = useLocale();
   const [idDeleting, setIdDeleting] = useState('');
   const antIcon = <LoadingOutlined style={{ fontSize: 15 }} spin />;
@@ -78,48 +79,50 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, ...props }) =
           },
         ],
       },
-      {
-        title: 'Action',
-        key: 'action',
-        render: (_: any, record: any) => (
-          <Space size="middle">
-            <Link to={'/' + name + '/' + record.id}>{formatMessage({ id: 'global.tips.edit' })}</Link>
+      hideActions
+        ? {}
+        : {
+            title: 'Action',
+            key: 'action',
+            render: (_: any, record: any) => (
+              <Space size="middle">
+                <Link to={'/' + name + '/' + record.id}>{formatMessage({ id: 'global.tips.edit' })}</Link>
 
-            <Popconfirm
-              placement="left"
-              title={formatMessage({ id: 'global.tips.deleteConfirm' })}
-              onConfirm={() => {
-                deleteItem(record.id);
-              }}
-              okText={formatMessage({ id: 'global.tips.yes' })}
-              cancelText={formatMessage({ id: 'global.tips.no' })}
-            >
-              <a className="flex items-center">
-                {idDeleting === record.id && <Spin indicator={antIcon} />}&nbsp;
-                {formatMessage({ id: 'global.tips.delete' })}
-              </a>
-            </Popconfirm>
+                <Popconfirm
+                  placement="left"
+                  title={formatMessage({ id: 'global.tips.deleteConfirm' })}
+                  onConfirm={() => {
+                    deleteItem(record.id);
+                  }}
+                  okText={formatMessage({ id: 'global.tips.yes' })}
+                  cancelText={formatMessage({ id: 'global.tips.no' })}
+                >
+                  <a className="flex items-center">
+                    {idDeleting === record.id && <Spin indicator={antIcon} />}&nbsp;
+                    {formatMessage({ id: 'global.tips.delete' })}
+                  </a>
+                </Popconfirm>
 
-            {record.deleted && (
-              <Popconfirm
-                placement="left"
-                title={formatMessage({ id: 'global.tips.recoverConfirm' })}
-                onConfirm={() => {
-                  // deleteItem(record.id);
-                  // to be update
-                }}
-                okText={formatMessage({ id: 'global.tips.yes' })}
-                cancelText={formatMessage({ id: 'global.tips.no' })}
-              >
-                <a className="flex items-center">
-                  {idDeleting == record.id && <Spin indicator={antIcon} />}&nbsp;
-                  {formatMessage({ id: 'global.tips.recover' })}
-                </a>
-              </Popconfirm>
-            )}
-          </Space>
-        ),
-      },
+                {record.deleted && (
+                  <Popconfirm
+                    placement="left"
+                    title={formatMessage({ id: 'global.tips.recoverConfirm' })}
+                    onConfirm={() => {
+                      // deleteItem(record.id);
+                      // to be update
+                    }}
+                    okText={formatMessage({ id: 'global.tips.yes' })}
+                    cancelText={formatMessage({ id: 'global.tips.no' })}
+                  >
+                    <a className="flex items-center">
+                      {idDeleting == record.id && <Spin indicator={antIcon} />}&nbsp;
+                      {formatMessage({ id: 'global.tips.recover' })}
+                    </a>
+                  </Popconfirm>
+                )}
+              </Space>
+            ),
+          },
     ];
   }, []);
 
@@ -265,21 +268,8 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, ...props }) =
   );
 
   const onSearch = (value: string) => {
-    // navigate({
-    //   pathname: '/' + name,
-    //   search: `${createSearchParams({
-    //     offset: params.pagination?.current?.toString() || '1',
-    //     limit: params.pagination?.pageSize?.toString() || '10',
-    //     sortBy: params.sortField || sortDefault,
-    //     sortOrder: params.sortOrder || 'desc',
-    //     q: value,
-    //   })}`,
-    // });
     debounceSearch(value);
-    // fetchData({ ...params, q: value });
   };
-
-  console.log(data);
 
   return (
     <div>

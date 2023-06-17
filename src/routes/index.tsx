@@ -11,6 +11,7 @@ import { CategoryPage } from '@/pages/category';
 import { CategoryDetailPage } from '@/pages/category/detail';
 import { ProductPage } from '@/pages/product';
 import { ProductDetailPage } from '@/pages/product/detail';
+import { OrderPage } from '@/pages/order';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const { logged } = useSelector(state => state.user);
@@ -43,11 +44,6 @@ const routeList: RouteObject[] = [
         path: 'products',
         element: <WrapperRouteComponent element={<ProductPage />} auth={true} titleId="title.product" />,
       },
-
-      // {
-      //   path: 'content',
-      //   element: <WrapperRouteComponent element={<ContentPage />} auth={true} titleId="title.content" />,
-      // },
       {
         path: 'categories',
         element: <WrapperRouteComponent element={<CategoryPage />} auth={true} titleId="title.account" />,
@@ -60,26 +56,10 @@ const routeList: RouteObject[] = [
         path: 'categories/:id',
         element: <WrapperRouteComponent element={<CategoryDetailPage />} auth={true} titleId="title.account" />,
       },
-
-      // {
-      //   path: 'content/draft',
-      //   element: <WrapperRouteComponent element={<DraftContentPage />} auth={true} titleId="title.draft_content" />,
-      // },
-
-      // {
-      //   path: 'content/draft/:id',
-      //   element: <WrapperRouteComponent element={<ContentAddPage />} auth={true} titleId="title.draft_content" />,
-      // },
-
-      // {
-      //   path: 'content/:id',
-      //   element: <WrapperRouteComponent element={<ContentDetailPage />} auth={true} titleId="title.account" />,
-      // },
-
-      // {
-      //   path: 'assets',
-      //   element: <WrapperRouteComponent element={<CoinPage />} auth={true} titleId="title.account" />,
-      // },
+      {
+        path: 'orders',
+        element: <WrapperRouteComponent element={<OrderPage />} auth={true} titleId="title.account" />,
+      },
       // {
       //   path: 'assets/add',
       //   element: <WrapperRouteComponent element={<CoinDetailPage />} auth={true} titleId="title.account" />,
