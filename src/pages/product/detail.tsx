@@ -1,90 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Divider, Form, Input, message, Select, Space, Switch } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, message, Select } from 'antd';
 import 'antd/dist/antd.css';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const { TextArea } = Input;
 
-import { apiGetCategoryList } from '@/api/category.api';
-import { apiGetCoinList } from '@/api/coin.api';
-import { apiGetPersonList } from '@/api/person.api';
+import { apiGetCategorySelectBox } from '@/api/category.api';
 import { apiAddProduct, apiGetProductItem, apiUpdateProduct } from '@/api/product.api';
 import WikiUploadImage from '@/components/wikiblock/upload-image-v2';
-import { Category } from '@/interface/category/category.interface';
-import { Coin } from '@/interface/coin/coin.interface';
 import { Product } from '@/interface/product/product.interface';
 import { useLocale } from '@/locales';
-import { formatDataPayload, formatTrans, uploadImages } from '@/utils/helper';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { debounce } from 'lodash';
+import { uploadImages } from '@/utils/helper';
+import { RangePickerProps } from 'antd/lib/date-picker';
+import dayjs from 'dayjs';
+import { isEmpty, isNil, omitBy, range } from 'lodash';
 import styled from 'styled-components';
-import SocialForm from '@/components/wikiblock/social-form';
+import { formatCategoriesData } from '.';
+import EditorV2 from '@/components/editorV2';
 
-const MAX_GALLERY_IMAGES = 5;
-const MAX_GALLERY_IMAGE_SIZE = 5;
-
-const appNameOptions = [
-  {
-    label: 'CH play',
-    value: 'CH play',
-  },
-  {
-    label: 'App store',
-    value: 'App store',
-  },
-];
-
-const teamNameOptions = [
-  {
-    label: 'Website',
-    value: 'website',
-  },
-  {
-    label: 'Facebook',
-    value: 'facebook',
-  },
-  {
-    label: 'Telegram',
-    value: 'telegram',
-  },
-  {
-    label: 'Twitter',
-    value: 'twitter',
-  },
-  {
-    label: 'Youtube',
-    value: 'youtube',
-  },
-  {
-    label: 'Discord',
-    value: 'discord',
-  },
-  {
-    label: 'Medium',
-    value: 'medium',
-  },
-  {
-    label: 'Reddit',
-    value: 'reddit',
-  },
-  {
-    label: 'Blog',
-    value: 'blog',
-  },
-  {
-    label: 'Rocket Chat',
-    value: 'rocket_chat',
-  },
-];
-
-// const layout = {
-//   labelCol: { span: 8 },
-//   wrapperCol: { span: 16 },
-// };
-// const tailLayout = {
-//   wrapperCol: { offset: 8, span: 16 },
-// };
 const { Option } = Select;
 
 export const uploadImage = async (options: any) => {
@@ -100,114 +34,92 @@ export const ProductDetailPage: FC = () => {
   const { formatMessage } = useLocale();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<any>([]);
-  const [coins, setCoins] = useState<any>([]);
-  const [people, setPeople] = useState<any>([]);
   const [dataItem, setDataItem] = useState<any>({});
   const { id } = useParams();
   const [form] = Form.useForm();
-  const [avatar, setAvatar] = useState<string>();
-  const [galleries, setGalleries] = useState<any>([]);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>();
+  const [images, setImages] = useState<any>([]);
 
   const fetchCategory = async (search?: string) => {
-    const { data = [] }: any = await apiGetCategoryList({
+    const { data = [] }: any = await apiGetCategorySelectBox({
       keyword: search,
     });
 
     if (data) {
-      setCategories(data);
+      const categories = formatCategoriesData(data);
+
+      setCategories(categories);
     }
   };
 
-  const fetchCoin = async (search?: string) => {
-    const { data = [] }: any = await apiGetCoinList({
-      keyword: search,
-    });
-
-    if (data) {
-      setCoins(data);
-    }
-  };
-
-  const fetchPerson = async (search?: string) => {
-    const { data = [] }: any = await apiGetPersonList({
-      keyword: search,
-    });
-
-    if (data) {
-      setPeople(data);
-    }
-  };
   const fetchItem = async (detailId: string) => {
-    const { trans, ...result }: any = await apiGetProductItem(detailId);
+    const { data }: any = await apiGetProductItem(detailId);
 
-    if (result) {
-      const _trans = trans.length > 0 ? trans : [{ lang: 'vi', name: '', about: '', features: [] }];
-      const vi = _trans.find((i: any) => i.lang === 'vi');
-      const featuresVi = vi.features || [];
+    if (data) {
       const item = {
-        ...result,
-        // features: [{ en: result.features.join(', '), vi: vi.features?.join(', ') || '' }],
-        features: result.features.map((feature: string, index: number) => ({
-          en: feature,
-          vi: featuresVi[index] || '',
-        })),
-        categories: result.categories.map((cat: Category) => cat.id),
-        cryptocurrencies: result.cryptocurrencies.map((coin: Coin) => coin.id),
-        trans: _trans,
+        ...data,
       };
 
-      form.setFieldsValue(item);
+      form.setFieldsValue({
+        ...item,
+        categoryId: item.category?.id,
+      });
       setDataItem(item);
-      setAvatar(item.avatar ?? '');
-      setGalleries(item.gallery ?? []);
-
-      setCoins((prev: any) => {
-        const coins = [...prev];
-
-        result.cryptocurrencies.forEach((coin: Coin) => {
-          const index = coins.findIndex((c: any) => c.id === coin.id);
-
-          index === -1 && coins.push(coin);
-        });
-
-        return coins;
-      });
-
-      setCategories((prev: any) => {
-        const categories = [...prev];
-
-        result.categories.forEach((cate: Category) => {
-          const index = categories.findIndex((c: any) => c.id === cate.id);
-
-          index === -1 && categories.push(cate);
-        });
-
-        return categories;
-      });
+      setImages(item.images);
+      setThumbnailUrl(item.thumbnailUrl);
     }
   };
 
-  const updateItem = async (data: Product, detailId?: string) => {
+  const updateItem = async (data: Partial<Product>, detailId?: string) => {
     let result: any;
 
-    data = formatTrans(data, 'features');
+    if (data.salePrice || data.saleEndAt) {
+      if (!data.salePrice) {
+        message.error('Please enter salePrice');
 
-    data = formatDataPayload(data) as Product;
+        return;
+      }
 
-    if (data.trans?.length) {
-      data.trans = data.trans.map(item => formatDataPayload(item)) as any;
+      if (!data.saleEndAt) {
+        message.error('Please enter saleEndAt');
+
+        return;
+      }
     }
 
-    if (avatar) {
-      message.loading({ content: 'Uploading avatar...', key: 'avatar' });
-      data.avatar = (await uploadImages([avatar], 'products'))[0];
-      message.success({ content: 'Upload avatar success!', key: 'avatar' });
+    data = {
+      ...omitBy(data, value => {
+        if (typeof value === 'string') {
+          return isNil(value) || isEmpty(value);
+        } else {
+          return isNil(value);
+        }
+      }),
+    };
+
+    if (thumbnailUrl) {
+      message.loading({ content: 'Uploading thumbnailUrl...', key: 'thumbnailUrl' });
+      data.thumbnailUrl = (
+        await uploadImages([
+          {
+            file: thumbnailUrl,
+            name: form.getFieldValue('name') + '.png',
+          },
+        ])
+      )[0];
+      message.success({ content: 'Upload thumbnailUrl success!', key: 'thumbnailUrl' });
     }
 
-    if (galleries && galleries.length) {
-      message.loading({ content: 'Uploading galleries...', key: 'galleries' });
-      data.galleries = await uploadImages(galleries, 'products');
-      message.success({ content: 'Upload galleries success!', key: 'galleries' });
+    if (images) {
+      message.loading({ content: 'Uploading images...', key: 'images' });
+      data.images = await uploadImages(
+        images.map((image: any, index: number) => ({
+          file: image,
+          name: form.getFieldValue('name') + `-${index}` + '.png',
+        })),
+      );
+
+      message.success({ content: 'Upload images success!', key: 'images' });
     }
 
     if (detailId) {
@@ -223,7 +135,7 @@ export const ProductDetailPage: FC = () => {
         fetchItem(detailId);
       } else {
         message.info(formatMessage({ id: 'global.tips.createSuccess' }).replace('{0}', result.id));
-        const path = `/product`;
+        const path = `/products`;
 
         return navigate(path);
       }
@@ -235,8 +147,6 @@ export const ProductDetailPage: FC = () => {
       fetchItem(id);
     }
     fetchCategory();
-    fetchCoin();
-    fetchPerson();
   }, [id]);
 
   const onFinish = (values: any) => {
@@ -245,32 +155,26 @@ export const ProductDetailPage: FC = () => {
 
   const onReset = () => {
     form.resetFields();
-    setAvatar(dataItem.avatar ?? '');
-    setGalleries(dataItem.gallery ?? []);
+    setThumbnailUrl(dataItem.avatar ?? '');
   };
 
-  const debounceSearchCoin = useCallback(
-    debounce(value => {
-      const searchValue = value.length > 0 ? value : undefined;
+  const disabledDateTime = () => {
+    const now = Date.now();
+    const nowDate = new Date(now);
+    const nowHour = nowDate.getHours() + 1;
+    const nowMinute = nowDate.getMinutes() + 30;
+    const nowSecond = nowDate.getSeconds() + 30;
 
-      fetchCoin(searchValue);
-    }, 300),
-    [],
-  );
+    return {
+      disabledHours: () => range(0, 24).splice(0, nowHour),
+      disabledMinutes: () => range(0, nowMinute),
+      disabledSeconds: () => range(0, nowSecond),
+    };
+  };
 
-  // const debounceSearchPerson = useCallback(
-  //   debounce(value => fetchPerson(value), 300),
-  //   [],
-  // );
-
-  const debounceSearchCategory = useCallback(
-    debounce(value => {
-      const searchValue = value.length > 0 ? value : undefined;
-
-      fetchCategory(searchValue);
-    }, 300),
-    [],
-  );
+  const disabledDate: RangePickerProps['disabledDate'] = current => {
+    return current && current < dayjs().endOf('day');
+  };
 
   return (
     <div className="p-3 bg-white">
@@ -284,173 +188,73 @@ export const ProductDetailPage: FC = () => {
           <FormItem name="name" label="Name" rules={[{ required: true }]}>
             <Input />
           </FormItem>
-          {/* <FormItem name="trans" className="flex-1" style={{ marginBottom: 0 }}>
-            <Form.List name="trans" initialValue={dataItem.trans}>
-              {(fields, { add }) => (
-                <>
-                  {fields.length === 0 && add()}
-                  {fields.map((field, index) => (
-                    <div key={field.key} className="flex items-center">
-                      <FormItem
-                        name={[field.name, 'lang']}
-                        style={{ display: 'none' }}
-                        initialValue={dataItem.trans ? dataItem.trans[index].lang : 'vi'}
-                      >
-                        <Input type="text" />
-                      </FormItem>
-                      <FormItem
-                        name={[field.name, 'name']}
-                        label={dataItem.trans ? dataItem.trans[index].lang : 'vi'}
-                        style={{ width: '100%' }}
-                        labelWidth={80}
-                      >
-                        <Input />
-                      </FormItem>
-                    </div>
-                  ))}
-                </>
-              )}
-            </Form.List>
-          </FormItem> */}
 
           <div className="flex-1"></div>
         </FormItemWrapper>
-        <FormItem label="Avatar" valuePropName="fileList">
+        <FormItem
+          label="ThumbnailUrl"
+          valuePropName="fileList"
+          rules={[
+            {
+              required: true,
+              type: 'string',
+            },
+          ]}
+        >
           <WikiUploadImage
-            fileList={avatar ? [avatar] : []}
-            onChange={file => setAvatar(file)}
-            onRemoveItem={() => setAvatar(undefined)}
+            fileList={thumbnailUrl ? [thumbnailUrl] : []}
+            onChange={file => setThumbnailUrl(file)}
+            onRemoveItem={() => setThumbnailUrl(undefined)}
             limit={1}
             showUploadList
           />
         </FormItem>
-        <FormItem label="Verified" valuePropName="checked">
-          <Switch defaultChecked={dataItem.verified} />
-        </FormItem>
-        <FormItem label="Sponsored" valuePropName="checked">
-          <Switch defaultChecked={dataItem.sponsored} />
-        </FormItem>
         <Divider orientation="left" style={{ fontWeight: '100' }}>
-          About
+          Description
         </Divider>
         <div className="flex items-center gap-x-[20px]">
-          <FormItem name="about" label="en" className="flex-1" labelWidth={80}>
+          <FormItem
+            name="description"
+            label="Description"
+            className="flex-1"
+            rules={[
+              {
+                required: true,
+                type: 'string',
+              },
+            ]}
+          >
             <TextArea rows={4} />
           </FormItem>
-          <FormItem name="trans" className="flex-1" style={{ marginBottom: 0 }}>
-            <Form.List name="trans" initialValue={dataItem.trans}>
-              {(fields, { add }) => (
-                <>
-                  {fields.length === 0 && add()}
-                  {fields.map((field, index) => (
-                    <div key={field.key} className="flex items-center">
-                      <FormItem
-                        name={[field.name, 'lang']}
-                        style={{ display: 'none' }}
-                        initialValue={dataItem.trans ? dataItem.trans[index].lang : 'vi'}
-                      >
-                        <Input type="text" />
-                      </FormItem>
-                      <FormItem
-                        name={[field.name, 'about']}
-                        label={dataItem.trans ? dataItem.trans[index].lang : 'vi'}
-                        style={{ width: '100%' }}
-                        labelWidth={80}
-                      >
-                        <TextArea rows={4} />
-                      </FormItem>
-                    </div>
-                  ))}
-                </>
-              )}
-            </Form.List>
-          </FormItem>
         </div>
-        <Divider></Divider>
-        <FormItem label="Contract Address">
-          <Form.List name="contract_addresses" initialValue={dataItem.contract_addresses}>
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(field => (
-                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                    <FormItem name={[field.name, 'address']}>
-                      <Input placeholder="Address" />
-                    </FormItem>
-                    <FormItem name={[field.name, 'url']} rules={[{ type: 'url' }]}>
-                      <Input placeholder="URL" />
-                    </FormItem>
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  </Space>
-                ))}
-                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                  Add Address
-                </Button>
-              </>
-            )}
-          </Form.List>
-        </FormItem>
-        <FormItem label="Features">
-          <Form.List name="features">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map((field, index) => (
-                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                    <FormItem name={[field.name, 'en']}>
-                      <TextArea rows={4} style={{ width: 400 }} placeholder="English" />
-                    </FormItem>
 
-                    <FormItem name={[field.name, 'vi']}>
-                      <TextArea rows={4} style={{ width: 400 }} placeholder="Vietnamese" />
-                    </FormItem>
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  </Space>
-                ))}
-                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                  Add Feature
-                </Button>
-              </>
-            )}
-          </Form.List>
-        </FormItem>
+        <Divider></Divider>
         <FormItemWrapper>
-          <FormItem label="Crypto Currency" name="cryptocurrencies">
+          <FormItem
+            name="categoryId"
+            label="Category"
+            rules={[
+              {
+                required: true,
+                type: 'string',
+              },
+            ]}
+          >
             <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="select one coin"
-              optionLabelProp="label"
-              filterOption={(input, option) => {
-                return (option!.label as string).toLowerCase().includes(input.toLowerCase());
-              }}
-              onSearch={value => debounceSearchCoin(value)}
-            >
-              {coins.map((coin: any) => {
-                return (
-                  <Option value={coin.id} label={coin.name}>
-                    <div className="demo-option-label-item">{coin.name}</div>
-                  </Option>
-                );
-              })}
-            </Select>
-          </FormItem>
-          <div className="flex-1"></div>
-        </FormItemWrapper>
-        <FormItemWrapper>
-          <FormItem name="categories" label="Categories">
-            <Select
-              mode="multiple"
               style={{ width: '100%' }}
               placeholder="select one category"
               optionLabelProp="label"
-              onSearch={value => debounceSearchCategory(value)}
               filterOption={(input, option) => {
                 return (option!.label as string).toLowerCase().includes(input.toLowerCase());
               }}
             >
               {categories.map((category: any) => {
                 return (
-                  <Option value={category.id} label={category.name ?? category.title}>
-                    <div className="demo-option-label-item">{category.name ?? category.title}</div>
+                  <Option value={category.id} label={category.name}>
+                    <div className="demo-option-label-item flex items-center justify-between">
+                      <span>{category.name}</span>
+                      <span>level {category.level}</span>
+                    </div>
                   </Option>
                 );
               })}
@@ -458,60 +262,20 @@ export const ProductDetailPage: FC = () => {
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
-        <FormItem name="apps" label="App">
-          <Form.List name="apps" initialValue={dataItem.apps}>
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(field => (
-                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                    <FormItem name={[field.name, 'name']}>
-                      {/* <Input placeholder="Name" /> */}
-                      <Select style={{ width: '100%' }} placeholder="Select one name" optionLabelProp="label">
-                        {appNameOptions.map(option => (
-                          <Option value={option.value}>{option.label}</Option>
-                        ))}
-                      </Select>
-                    </FormItem>
-                    <FormItem name={[field.name, 'url']} rules={[{ type: 'url' }]}>
-                      <Input placeholder="URL" />
-                    </FormItem>
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  </Space>
-                ))}
-                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                  Add App
-                </Button>
-              </>
-            )}
-          </Form.List>
-        </FormItem>
-        <FormItem name="supports" label="Support">
-          <Form.List name="supports" initialValue={dataItem.supports}>
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(field => (
-                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                    <FormItem name={[field.name, 'name']}>
-                      <Input placeholder="Name" />
-                    </FormItem>
-                    <FormItem name={[field.name, 'url']} rules={[]}>
-                      <Input placeholder="URL" />
-                    </FormItem>
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  </Space>
-                ))}
-                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                  Add Support
-                </Button>
-              </>
-            )}
-          </Form.List>
-        </FormItem>
-        <FormItem label="Gallery" valuePropName="fileList">
+
+        <FormItem
+          label="Images"
+          valuePropName="fileList"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
           <WikiUploadImage
-            fileList={galleries}
-            onChange={file => setGalleries((prev: any) => [...prev, file])}
-            onRemoveItem={key => setGalleries((prev: any) => prev.filter((file: string) => file !== key))}
+            fileList={images}
+            onChange={file => setImages((prev: any) => [...prev, file])}
+            onRemoveItem={key => setImages((prev: any) => prev.filter((file: string) => file !== key))}
             limit={10}
             showUploadList
             multiple
@@ -519,82 +283,81 @@ export const ProductDetailPage: FC = () => {
         </FormItem>
 
         <FormItemWrapper>
-          <FormItem name="team" label="Team Person">
-            <Form.List name="team" initialValue={dataItem.team}>
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(field => (
-                    <>
-                      <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                        <FormItem name={[field.name, 'name']}>
-                          <Input placeholder="Name" />
-                        </FormItem>
-                        <FormItem name={[field.name, 'position']}>
-                          <Input placeholder="Position" />
-                        </FormItem>
-                        <MinusCircleOutlined onClick={() => remove(field.name)} />
-                      </Space>
-                      <FormItem label="Contacts">
-                        <Form.List name={[field.name, 'contacts']}>
-                          {(fields, { add, remove }) => {
-                            return (
-                              <>
-                                {fields.map(field => (
-                                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                                    <FormItem name={[field.name, 'name']}>
-                                      <Select
-                                        style={{ width: '100%' }}
-                                        placeholder="Select one type"
-                                        optionLabelProp="label"
-                                      >
-                                        {teamNameOptions.map(option => (
-                                          <Option value={option.value}>{option.label}</Option>
-                                        ))}
-                                      </Select>
-                                    </FormItem>
-                                    <FormItem name={[field.name, 'url']} rules={[{ type: 'url' }]}>
-                                      <Input placeholder="URL" />
-                                    </FormItem>
-                                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                                  </Space>
-                                ))}
-
-                                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                                  Add Contact
-                                </Button>
-                              </>
-                            );
-                          }}
-                        </Form.List>
-                      </FormItem>
-
-                      <Divider />
-                    </>
-                  ))}
-                  <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-                    Add Team
-                  </Button>
-                </>
-              )}
-            </Form.List>
-          </FormItem>
-        </FormItemWrapper>
-
-        <FormItemWrapper>
-          <FormItem name="parent_company" label="Parent Company" rules={[]}>
-            <Input />
+          <FormItem
+            label="Inventory"
+            name="inventory"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input type="number" />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
 
         <FormItemWrapper>
-          <FormItem name="team_location" label="Team Location" rules={[]}>
-            <Input />
+          <FormItem
+            label="Price(VND)"
+            name="price"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input type="number" />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
 
-        <SocialForm />
+        <FormItemWrapper>
+          <FormItem
+            label="Weight(g)"
+            name="weight"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input type="number" />
+          </FormItem>
+          <div className="flex-1"></div>
+        </FormItemWrapper>
+
+        <FormItemWrapper>
+          <FormItem label="Sale Price(VND)" name="salePrice">
+            <Input type="number" />
+          </FormItem>
+          <div className="flex-1"></div>
+        </FormItemWrapper>
+
+        <FormItemWrapper>
+          <FormItem label="Sale End At" name="saleEndAt">
+            <DatePicker showTime disabledTime={disabledDateTime} disabledDate={disabledDate} />
+          </FormItem>
+          <div className="flex-1"></div>
+        </FormItemWrapper>
+
+        <div className="flex items-center gap-x-[20px]">
+          <FormItem
+            name="detailDescription"
+            label="Detail Description"
+            className="flex-1"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <EditorV2
+              data={dataItem.detailDescription}
+              onChange={data => form.setFieldValue('detailDescription', data)}
+            />
+          </FormItem>
+        </div>
 
         <FormItem>
           <Button type="primary" htmlType="submit">

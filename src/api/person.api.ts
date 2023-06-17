@@ -19,20 +19,15 @@ export const apiGetPersonList = (
 ) => request<GetPersonResult>('get', '/public/persons', {}, { baseURL: import.meta.env.VITE_API_URL, params });
 
 // get Person Detail
-export const apiGetPersonItem = (id: string, lang = '') =>
-  request<GetPersonResult>(
-    'get',
-    '/private/persons/' + id + (lang ? '?lang=' + lang : ''),
-    {},
-    { baseURL: import.meta.env.VITE_API_URL },
-  );
+export const apiGetPersonItem = (id: string) =>
+  request<GetPersonResult>('get', '/users/' + id, {}, { baseURL: import.meta.env.VITE_API_URL });
 // Add Person
 export const apiAddPerson = (data: Person) =>
-  request<GetPersonResult>('post', '/private/persons', data, { baseURL: import.meta.env.VITE_API_URL });
+  request<GetPersonResult>('post', '/users', data, { baseURL: import.meta.env.VITE_API_URL });
 
 // Update Person
 export const apiUpdatePerson = (id: string, data: Person) =>
-  request<GetPersonResult>('put', '/private/persons/' + id, data, { baseURL: import.meta.env.VITE_API_URL });
+  request<GetPersonResult>('put', '/users/' + id, data, { baseURL: import.meta.env.VITE_API_URL });
 
 // Delte Person
 export const apiDeletePerson = (id: string) =>

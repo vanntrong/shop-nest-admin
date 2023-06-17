@@ -1,17 +1,17 @@
-import { Suspense, useEffect } from 'react';
-import './styles/main.css';
-import { IntlProvider } from 'react-intl';
-import { localeConfig, LocaleFormatter } from './locales';
-import { ConfigProvider, Spin } from 'antd';
-import { ThemeSwitcherProvider } from 'react-css-theme-switcher';
+import { HistoryRouter, history } from '@/routes/history';
+import { ConfigProvider } from 'antd';
 import enUS from 'antd/es/locale/en_US';
 import viVN from 'antd/es/locale/vi_VN';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
-import RenderRouter from './routes';
+import { Suspense, useEffect } from 'react';
+import { ThemeSwitcherProvider } from 'react-css-theme-switcher';
+import { IntlProvider } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { history, HistoryRouter } from '@/routes/history';
+import { localeConfig } from './locales';
+import RenderRouter from './routes';
 import { setGlobalState } from './stores/global.store';
+import './styles/main.css';
 
 const isDev = import.meta.env.MODE === 'development';
 
@@ -79,7 +79,6 @@ const App: React.FC = () => {
         <IntlProvider locale={locale.split('_')[0]} messages={localeConfig[locale]}>
           <HistoryRouter history={history}>
             <Suspense fallback={null}>
-
               <RenderRouter />
             </Suspense>
           </HistoryRouter>

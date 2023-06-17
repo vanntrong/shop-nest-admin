@@ -1,12 +1,11 @@
-import { Button, Tag } from 'antd';
-import { FC } from 'react';
-import { ColumnsType } from 'antd/es/table';
-import { useNavigate } from 'react-router-dom';
-import { useLocale } from '@/locales';
+import ImagePreview from '@/components/wikiblock/image-preview';
 import { WikiTable } from '@/components/wikiblock/table';
 import { Person } from '@/interface/person/person.interface';
-import ImagePreview from '@/components/wikiblock/image-preview';
-import { Category } from '@/interface/category/category.interface';
+import { useLocale } from '@/locales';
+import { Button } from 'antd';
+import { ColumnsType } from 'antd/es/table';
+import { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
 export const PersonPage: FC = () => {
   const { formatMessage } = useLocale();
   const navigate = useNavigate();
@@ -15,22 +14,31 @@ export const PersonPage: FC = () => {
       title: 'Avatar',
       dataIndex: 'avatar',
       key: 'avatar',
-      render: (avatar, { name }) => <ImagePreview src={avatar} alt={name} text={name} />,
+      render: avatar => <ImagePreview src={avatar} alt={''} text={''} />,
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
-      title: 'Categories',
-      dataIndex: 'categories',
-      key: 'categories',
-      render: categories => categories.map(({ id, name, title }: Category) => <Tag key={id}>{name || title}</Tag>),
+      title: 'Provider',
+      dataIndex: 'provider',
+      key: 'provider',
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Point',
+      dataIndex: 'point',
+      key: 'point',
     },
   ];
   const addPerson = () => {
-    const path = `/person/add`;
+    const path = `/users/add`;
 
     return navigate(path);
   };
@@ -47,7 +55,7 @@ export const PersonPage: FC = () => {
           {formatMessage({ id: 'app.person.list.add_person' })}
         </Button>
       </div>
-      <WikiTable name="person" columns={columns} api="persons" />
+      <WikiTable name="users" columns={columns} api="users" />
     </div>
   );
 };

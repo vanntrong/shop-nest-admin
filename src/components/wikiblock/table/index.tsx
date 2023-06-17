@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import { createSearchParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { debounce, omit } from 'lodash';
 
-interface Props {
+interface Props extends TableProps<any> {
   name: string;
   columns: ColumnsType<any>;
   api?: string;
@@ -28,32 +28,30 @@ interface Params {
 
 const { Search } = Input;
 
-export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
+export const WikiTable: FC<Props> = ({ name, columns, api, filter, ...props }) => {
   const { formatMessage } = useLocale();
   const [idDeleting, setIdDeleting] = useState('');
   const antIcon = <LoadingOutlined style={{ fontSize: 15 }} spin />;
-  // const navigate = useNavigate();
   const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isSetParamsSuccess, setIsSetParamsSuccess] = useState(false);
-  // const [filterColumns, setFilterColumns] = useState([]);
 
   const _columns = useMemo(() => {
     return [
       ...columns,
       {
         title: 'Created At',
-        dataIndex: 'created_at',
+        dataIndex: 'createdAt',
         key: 'createdAt',
         render: (createdAt: any) => (
           <span className="whitespace-nowrap">{dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
         ),
         sorter: true,
         defaultSortOrder:
-          searchParams.get('sort_by') === 'created_at'
-            ? searchParams.get('sort_order') === 'DESC'
+          searchParams.get('sortBy') === 'createdAt'
+            ? searchParams.get('sortOrder') === 'desc'
               ? 'descend'
               : ('ascend' as any)
             : undefined,
@@ -67,8 +65,8 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
         ),
         sorter: true,
         defaultSortOrder:
-          searchParams.get('sort_by') === 'deleted'
-            ? searchParams.get('sort_order') === 'DESC'
+          searchParams.get('sortBy') === 'deleted'
+            ? searchParams.get('sortOrder') === 'desc'
               ? 'descend'
               : ('ascend' as any)
             : undefined,
@@ -131,7 +129,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
       pageSize: 10,
     },
   });
-  const sortDefault = 'created_at';
+  const sortDefault = 'createdAt';
 
   useEffect(() => {
     setParams({
@@ -139,8 +137,8 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
         current: Number(searchParams.get('offset')) || 1,
         pageSize: Number(searchParams.get('limit')) || 10,
       },
-      sortField: searchParams.get('sort_by') || sortDefault,
-      sortOrder: searchParams.get('sort_order') && searchParams.get('sort_order') === 'ASC' ? 'ASC' : 'DESC',
+      sortField: searchParams.get('sortBy') || sortDefault,
+      sortOrder: searchParams.get('sortOrder') && searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc',
       keyword: searchParams.get('q') || undefined,
     });
     !isSetParamsSuccess && setIsSetParamsSuccess(true);
@@ -151,7 +149,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
     setIdDeleting(id);
     const result: any = await request<any[]>(
       'delete',
-      '/private/' + (api || name) + '/' + id,
+      '/' + (api || name) + '/' + id,
       {},
       {
         baseURL: import.meta.env.VITE_API_URL,
@@ -160,40 +158,31 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
 
     if (result || typeof result === 'string') {
       setLoading(false);
-      // if (result.items.length) {
-      //   setData(result.items);
-      //   setPagination({ ...params.pagination, total: result.total_count, });
-      // }
+
       message.info(formatMessage({ id: 'global.tips.deleteSuccess' }).replace('{0}', id));
 
       fetchData(params);
     }
   };
 
-  // const addItem = () => {
-  //   const path = `/` + name + `/add`;
-
-  //   return navigate(path);
-  // };
-
   const fetchData = async (params: Params = {}, filter?: any) => {
     setLoading(true);
     const sortField = params.sortField || sortDefault;
-    const sortOrder = params.sortOrder || 'DESC';
+    const sortOrder = params.sortOrder || 'desc';
     const search = params.keyword?.length ? params.keyword : undefined;
 
     try {
-      const { data = [], paging = { count: 10, has_next: false, total: 10 } }: any = await request<any[]>(
+      const { data = [], total = 10 }: any = await request<any[]>(
         'get',
-        '/public/' + (api || name),
+        '/' + (api || name),
         {},
         {
           baseURL: import.meta.env.VITE_API_URL,
           params: {
-            offset: params?.pagination?.current,
+            offset: (params?.pagination?.current ?? 1) - 1,
             limit: params?.pagination?.pageSize,
-            sort_by: sortField,
-            sort_order: sortOrder,
+            sortBy: sortField,
+            sortOrder: sortOrder,
             keyword: search,
             ...omit(params, ['pagination', 'sortField', 'sortOrder', 'q']),
             ...(filter ?? {}),
@@ -208,7 +197,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
           pagination: {
             current: params?.pagination?.current || prev.pagination?.current,
             pageSize: params.pagination?.pageSize || prev.pagination?.pageSize,
-            total: paging.total,
+            total: total,
           },
           sortField,
           sortOrder,
@@ -254,8 +243,8 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
       search: `${createSearchParams({
         offset: newPagination.current?.toString() || '1',
         limit: newPagination.pageSize?.toString() || '10',
-        sort_by: !order ? sortDefault : (field as string),
-        sort_order: !order || order === 'descend' ? 'DESC' : 'ASC',
+        sortBy: !order ? sortDefault : (field as string),
+        sortOrder: !order || order === 'descend' ? 'desc' : 'asc',
       })}`,
     });
 
@@ -263,7 +252,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
       pagination: newPagination,
       ...filters,
       sortField: !order ? sortDefault : (field as string),
-      sortOrder: !order ? undefined : order === 'ascend' ? 'ASC' : 'DESC',
+      sortOrder: !order ? undefined : order === 'ascend' ? 'asc' : 'desc',
       ...filtersObject,
     });
   };
@@ -281,14 +270,16 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
     //   search: `${createSearchParams({
     //     offset: params.pagination?.current?.toString() || '1',
     //     limit: params.pagination?.pageSize?.toString() || '10',
-    //     sort_by: params.sortField || sortDefault,
-    //     sort_order: params.sortOrder || 'DESC',
+    //     sortBy: params.sortField || sortDefault,
+    //     sortOrder: params.sortOrder || 'desc',
     //     q: value,
     //   })}`,
     // });
     debounceSearch(value);
     // fetchData({ ...params, q: value });
   };
+
+  console.log(data);
 
   return (
     <div>
@@ -306,6 +297,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter }) => {
         pagination={params.pagination}
         loading={loading}
         onChange={handleTableChange}
+        {...props}
       />
     </div>
   );

@@ -3,10 +3,22 @@ import { WikiTable } from '@/components/wikiblock/table';
 import { Category } from '@/interface/category/category.interface';
 import { Product } from '@/interface/product/product.interface';
 import { useLocale } from '@/locales';
-import { Avatar, Button, Tag } from 'antd';
+import { numberToVND } from '@/utils/number';
+import { Button, Image, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+export const formatCategoriesData = (data: any) => {
+  if (!data || !data.length) return [];
+
+  return data.reduce((acc, next) => {
+    const { subCategories, ...rest } = next;
+
+    return [...acc, rest, ...formatCategoriesData(subCategories)];
+  }, []);
+};
 
 export const ProductPage: FC = () => {
   const { formatMessage } = useLocale();
@@ -18,7 +30,9 @@ export const ProductPage: FC = () => {
     const { data = [] }: any = await apiGetCategorySelectBox();
 
     if (data) {
-      setCategories(data);
+      const categories = formatCategoriesData(data);
+
+      setCategories(categories);
     }
     setIsContentReady(true);
   };
@@ -34,9 +48,8 @@ export const ProductPage: FC = () => {
       key: 'name',
       render: (name, record) => (
         <div className="flex items-center">
-          <Avatar src={record.avatar}>{name[0].toUpperCase()}</Avatar>
           <span style={{ marginLeft: 10 }} className="whitespace-nowrap">
-            <a title="View & Edit" href={'/product/' + record.id}>
+            <a title="View & Edit" href={'/products/' + record.id}>
               {name}
             </a>
           </span>
@@ -44,23 +57,62 @@ export const ProductPage: FC = () => {
       ),
     },
     {
-      title: 'About',
-      dataIndex: 'about',
-      key: 'about',
-      render: (about: string) => <p className="text-ellipsis line-clamp-2">{about}</p>,
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      render: (description: string) => <p className="text-ellipsis line-clamp-2">{description}</p>,
       width: 400,
     },
     {
-      title: 'Categories',
-      dataIndex: 'categories',
-      key: 'categories',
+      title: 'ThumbnailUrl',
+      dataIndex: 'thumbnailUrl',
+      key: 'thumbnailUrl',
+      render: (thumbnailUrl: string) => <Image src={thumbnailUrl} width={200} />,
+    },
+    {
+      title: 'Category',
+      dataIndex: 'category',
+      key: 'category',
       filterSearch: true,
       filters: categories!.map((category: Category) => ({ text: category.name, value: category.id })),
 
-      render: (categories = []) => {
-        return categories.map(({ id, name, title }: Category) => <Tag key={id}>{name || title}</Tag>);
+      render: (category: Category) => {
+        return <Tag>{category.name}</Tag>;
       },
-      // width: 400,
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price: number) => numberToVND(price),
+    },
+    {
+      title: 'Inventory',
+      dataIndex: 'inventory',
+      key: 'inventory',
+      render: (inventory: number) => <Tag>{inventory}</Tag>,
+    },
+    {
+      title: 'Weight',
+      dataIndex: 'weight',
+      key: 'weight',
+      render: (weight: number) => <Tag>{weight}g</Tag>,
+    },
+    {
+      title: 'Sale Price',
+      dataIndex: 'salePrice',
+      key: 'salePrice',
+      render: (salePrice: number | null, record: any) =>
+        salePrice && record.saleEndAt && dayjs(record.saleEndAt).isAfter(Date.now())
+          ? numberToVND(salePrice)
+          : 'No Sale',
+    },
+    {
+      title: 'Sale End',
+      dataIndex: 'saleEndAt',
+      key: 'saleEndAt',
+      render: (saleEndAt: string) =>
+        saleEndAt && dayjs(saleEndAt).isAfter(Date.now()) ? dayjs(saleEndAt).format('DD/MM/YYYY HH:mm:ss') : 'No Sale',
     },
   ];
   const addProduct = () => {

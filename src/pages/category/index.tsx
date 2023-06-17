@@ -1,62 +1,119 @@
-import { Button } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { FC } from 'react';
-import { Category } from '@/interface/category/category.interface';
-import { useNavigate } from 'react-router-dom';
-import { useLocale } from '@/locales';
+import { apiDeleteCategory } from '@/api/category.api';
 import { WikiTable } from '@/components/wikiblock/table';
-import { CATEGORY_TYPE } from '@/interface';
-import { capitalize } from 'lodash';
+import { Category } from '@/interface/category/category.interface';
+import { useLocale } from '@/locales';
+import { Button, Popconfirm, Space, Table, TableColumnsType } from 'antd';
+import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import { FC } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const CategoryPage: FC = () => {
   const { formatMessage } = useLocale();
   const navigate = useNavigate();
+
   const columns: ColumnsType<Category> = [
-    // {
-    //   title: 'ID',
-    //   dataIndex: 'id',
-    //   key: 'id',
-    //   render: rowId => (
-    //     <a title={rowId} href={'Category/' + rowId}>
-    //       {rowId.length > 15 ? rowId.substring(1, 15) + '...' : rowId}
-    //     </a>
-    //   ),
-    // },
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
       ellipsis: true,
       sorter: true,
     },
     {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      filtered: true,
-      render: type => capitalize(type.replace(/_/g, ' ')),
-      filters: Object.keys(CATEGORY_TYPE).map((key: string) => ({
-        text: key.replace(/_/g, ' '),
-        value: CATEGORY_TYPE[key as keyof typeof CATEGORY_TYPE],
-      })),
-    },
-    {
-      title: 'Weight',
-      dataIndex: 'weight',
-      key: 'weight',
-      sorter: true,
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
       ellipsis: true,
     },
     {
-      title: 'Rank',
-      dataIndex: 'rank',
-      key: 'rank',
+      title: 'Children Count',
+      render: (_, record) => {
+        return record.subCategories?.length || 0;
+      },
     },
   ];
+
   const addCategory = () => {
-    const path = `/category/add`;
+    const path = `/categories/add`;
 
     return navigate(path);
+  };
+
+  const deleteCategory = async (id: string) => {
+    await apiDeleteCategory(id);
+  };
+
+  const expandedRowRender = (record: Category) => {
+    const columns: TableColumnsType<Category> = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        ellipsis: true,
+        sorter: true,
+      },
+      {
+        title: 'Description',
+        dataIndex: 'description',
+        key: 'description',
+        ellipsis: true,
+      },
+      {
+        title: 'Children Count',
+        render: (_, record) => {
+          return record.subCategories?.length || 0;
+        },
+      },
+      {
+        title: 'Created At',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+        render: (createdAt: any) => (
+          <span className="whitespace-nowrap">{dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
+        ),
+      },
+      {
+        title: 'Deleted',
+        dataIndex: 'deleted',
+        key: 'deleted',
+        render: (deleted: any) => (
+          <span className="whitespace-nowrap w-full flex justify-center">{deleted ? 'true' : 'false'}</span>
+        ),
+      },
+      {
+        title: 'Action',
+        key: 'action',
+        render: (_: any, record: any) => (
+          <Space size="middle">
+            <Link to={'/categories/' + record.id}>{formatMessage({ id: 'global.tips.edit' })}</Link>
+            <Popconfirm
+              placement="left"
+              title={formatMessage({ id: 'global.tips.deleteConfirm' })}
+              onConfirm={() => {
+                deleteCategory(record.id);
+              }}
+              okText={formatMessage({ id: 'global.tips.yes' })}
+              cancelText={formatMessage({ id: 'global.tips.no' })}
+            >
+              <a className="flex items-center">{formatMessage({ id: 'global.tips.delete' })}</a>
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ];
+
+    return (
+      <Table
+        columns={columns}
+        dataSource={record.subCategories}
+        pagination={false}
+        expandable={{
+          expandedRowRender,
+          rowExpandable: record => record.subCategories && record.subCategories.length > 0,
+        }}
+      />
+    );
   };
 
   return (
@@ -71,7 +128,15 @@ export const CategoryPage: FC = () => {
           {formatMessage({ id: 'app.category.list.add_category' })}
         </Button>
       </div>
-      <WikiTable name="category" columns={columns} api="categories" />
+      <WikiTable
+        name="categories"
+        columns={columns}
+        api="categories"
+        expandable={{
+          expandedRowRender,
+          rowExpandable: record => record.subCategories && record.subCategories.length > 0,
+        }}
+      />
     </div>
   );
 };

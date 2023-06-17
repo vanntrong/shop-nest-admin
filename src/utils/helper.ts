@@ -12,21 +12,25 @@ export const getBase64 = (file: any) =>
     reader.onerror = error => reject(error);
   });
 
-export const uploadImages = async (imageURLs: string[], folder = 'wikiblock') => {
+type TFile = {
+  file: string;
+  name: string;
+};
+
+export const uploadImages = async (imageURLs: TFile[]) => {
   const formattedImages = await Promise.all(
     imageURLs.map(async imageURL => {
       let picture = '';
       let imgData: any = imageURL;
 
-      if (!imageURL.startsWith('http')) {
+      if (!imageURL.file.startsWith('http') || !imageURL.file.startsWith('https')) {
         imgData = new FormData();
-        const blob = await fetch(imageURL).then(res => res.blob());
+        const blob = await fetch(imageURL.file).then(res => res.blob());
 
-        imgData.append('file', blob, 'test.png');
-        imgData.append('folder', folder);
+        imgData.append('file', blob, imageURL.name);
 
-        const res: any = await request('post', '/public/upload/images', imgData, {
-          baseURL: import.meta.env.VITE_API_UPLOAD_IMAGE_URL,
+        const res: any = await request('post', '/upload', imgData, {
+          baseURL: import.meta.env.VITE_API_URL,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -34,7 +38,7 @@ export const uploadImages = async (imageURLs: string[], folder = 'wikiblock') =>
 
         picture = res?.url;
       } else {
-        picture = imageURL;
+        picture = imageURL.file;
       }
 
       return picture;

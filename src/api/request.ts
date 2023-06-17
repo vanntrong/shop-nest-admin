@@ -54,27 +54,9 @@ axiosInstance.interceptors.response.use(
     let errMsg = 'Error';
 
     if (error.response && error.response.data) {
-      const {
-        error: { code = 400, details = '', message = 'Error' },
-      } = error.response.data;
+      const { message = ['Error'] } = error.response.data;
 
-      switch (code) {
-        case '1001':
-          // Token expired
-          errMsg = message;
-          window.location.href = '/login';
-
-          break;
-
-        case 400:
-          errMsg = details[0]?.message;
-
-          break;
-        default:
-          errMsg = message;
-
-          break;
-      }
+      errMsg = message[0];
     }
 
     $message.error(errMsg);
