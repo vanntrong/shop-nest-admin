@@ -114,6 +114,18 @@ export const ProductPage: FC = () => {
       render: (saleEndAt: string) =>
         saleEndAt && dayjs(saleEndAt).isAfter(Date.now()) ? dayjs(saleEndAt).format('DD/MM/YYYY HH:mm:ss') : 'No Sale',
     },
+    {
+      title: 'Active',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (isActive: any) => <Tag color={isActive ? '#87d068' : '#f50'}>{isActive ? 'True' : 'False'}</Tag>,
+    },
+    {
+      title: 'Created By',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      render: (createdBy: any) => createdBy.name,
+    },
   ];
   const addProduct = () => {
     const path = `/product/add`;

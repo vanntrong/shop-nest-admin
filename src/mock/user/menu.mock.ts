@@ -47,6 +47,15 @@ const mockMenuList: MenuList = [
     icon: 'order',
     path: '/orders',
   },
+  {
+    code: 'Promotion',
+    label: {
+      vi_VN: 'Mã giảm giá',
+      en_US: 'Promotions',
+    },
+    icon: 'promotion',
+    path: '/promotions',
+  },
 ];
 
 mock.mock('/user/menu', 'get', intercepter(mockMenuList));

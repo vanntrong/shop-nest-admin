@@ -1,19 +1,14 @@
-import { FC } from 'react';
+import { ReactComponent as DashboardSvg } from '@/assets/menu/dashboard.svg';
 import { ReactComponent as GuideSvg } from '@/assets/menu/guide.svg';
 import { ReactComponent as PermissionSvg } from '@/assets/menu/permission.svg';
-import { ReactComponent as DashboardSvg } from '@/assets/menu/dashboard.svg';
-import { ReactComponent as AccountSvg } from '@/assets/menu/account.svg';
-import { ReactComponent as DocumentationSvg } from '@/assets/menu/documentation.svg';
 import {
-  TableOutlined,
+  PropertySafetyOutlined,
+  ShoppingCartOutlined,
   SnippetsOutlined,
-  DiffOutlined,
-  DollarCircleOutlined,
-  BankOutlined,
-  ScheduleOutlined,
+  TableOutlined,
   UserOutlined,
-  GlobalOutlined,
 } from '@ant-design/icons';
+import { FC } from 'react';
 
 interface CustomIconProps {
   type: string;
@@ -36,18 +31,7 @@ export const CustomIcon: FC<CustomIconProps> = props => {
       com = <DashboardSvg />;
 
       break;
-    case 'content':
-      com = <DiffOutlined />;
 
-      break;
-    case 'account':
-      com = <AccountSvg />;
-
-      break;
-    case 'documentation':
-      com = <DocumentationSvg />;
-
-      break;
     case 'product':
       com = <TableOutlined />;
 
@@ -56,25 +40,19 @@ export const CustomIcon: FC<CustomIconProps> = props => {
       com = <SnippetsOutlined />;
 
       break;
-    case 'coin':
-      com = <DollarCircleOutlined />;
-
-      break;
-    case 'company':
-      com = <BankOutlined />;
-
-      break;
-    case 'event':
-      com = <ScheduleOutlined />;
-
-      break;
 
     case 'person':
       com = <UserOutlined />;
 
       break;
-    case 'country':
-      com = <GlobalOutlined />;
+    case 'order':
+      com = <ShoppingCartOutlined />;
+
+      break;
+    case 'promotion':
+      com = <PropertySafetyOutlined />;
+
+      break;
 
       break;
   }

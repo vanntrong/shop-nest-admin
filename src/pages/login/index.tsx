@@ -10,7 +10,6 @@ import { useLocale } from '@/locales';
 const initialValues: LoginParams = {
   username: 'guest',
   password: 'guest',
-  // remember: true
 };
 
 const LoginForm: FC = () => {
@@ -22,7 +21,7 @@ const LoginForm: FC = () => {
   const onFinished = async (form: LoginParams) => {
     const res: any = await dispatch(await loginAsync(form));
 
-    if (!res.user) {
+    if (!res.data) {
       return false;
     }
 
@@ -33,12 +32,22 @@ const LoginForm: FC = () => {
   };
 
   return (
-    <div className="login-page">
-      <Form<LoginParams> onFinish={onFinished} className="login-page-form" initialValues={initialValues}>
-        <h2>{formatMessage({ id: 'title.login' })}</h2>
+    <div className="flex items-center justify-center">
+      <Form<LoginParams>
+        onFinish={onFinished}
+        className="login-page-form"
+        initialValues={initialValues}
+        style={{
+          width: '100%',
+          maxWidth: 450,
+        }}
+      >
+        <h2 className="text-2xl text-center mb-2">{formatMessage({ id: 'title.login' })}</h2>
         <Form.Item
-          name="username"
-          rules={[{ required: true, message: formatMessage({ id: 'app.settings.basic.username-message' }) }]}
+          name="email"
+          rules={[
+            { required: true, type: 'email', message: formatMessage({ id: 'app.settings.basic.username-message' }) },
+          ]}
         >
           <Input placeholder={formatMessage({ id: 'app.settings.basic.username' })} />
         </Form.Item>

@@ -12,6 +12,8 @@ import { CategoryDetailPage } from '@/pages/category/detail';
 import { ProductPage } from '@/pages/product';
 import { ProductDetailPage } from '@/pages/product/detail';
 import { OrderPage } from '@/pages/order';
+import { PromotionPage } from '@/pages/promotion';
+import { PromotionDetailPage } from '@/pages/promotion/detail';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const { logged } = useSelector(state => state.user);
@@ -60,38 +62,21 @@ const routeList: RouteObject[] = [
         path: 'orders',
         element: <WrapperRouteComponent element={<OrderPage />} auth={true} titleId="title.account" />,
       },
-      // {
-      //   path: 'assets/add',
-      //   element: <WrapperRouteComponent element={<CoinDetailPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'assets/:id',
-      //   element: <WrapperRouteComponent element={<CoinDetailPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'company',
-      //   element: <WrapperRouteComponent element={<CompanyPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'company/add',
-      //   element: <WrapperRouteComponent element={<CompanyDetailPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'company/:id',
-      //   element: <WrapperRouteComponent element={<CompanyDetailPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'event',
-      //   element: <WrapperRouteComponent element={<EventPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'event/add',
-      //   element: <WrapperRouteComponent element={<EventDetailPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'event/:id',
-      //   element: <WrapperRouteComponent element={<EventDetailPage />} auth={true} titleId="title.account" />,
-      // },
+
+      {
+        path: 'promotions/add',
+        element: <WrapperRouteComponent element={<PromotionDetailPage />} auth={true} titleId="title.account" />,
+      },
+
+      {
+        path: 'promotions',
+        element: <WrapperRouteComponent element={<PromotionPage />} auth={true} titleId="title.account" />,
+      },
+      {
+        path: 'promotions/:id',
+        element: <WrapperRouteComponent element={<PromotionDetailPage />} auth={true} titleId="title.account" />,
+      },
+
       {
         path: 'users',
         element: <WrapperRouteComponent element={<PersonPage />} titleId="title.account" />,
@@ -104,23 +89,6 @@ const routeList: RouteObject[] = [
         path: 'users/:id',
         element: <WrapperRouteComponent element={<PersonDetailPage />} titleId="title.account" />,
       },
-
-      // {
-      //   path: 'account',
-      //   element: <WrapperRouteComponent element={<AccountPage />} auth={true} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'funds',
-      //   element: <WrapperRouteComponent element={<FundPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'funds/add',
-      //   element: <WrapperRouteComponent element={<FundDetailPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'funds/:id',
-      //   element: <WrapperRouteComponent element={<FundDetailPage />} titleId="title.account" />,
-      // },
 
       {
         path: '*',

@@ -1,6 +1,6 @@
 import { request } from '@/api/request';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Input, message, Popconfirm, Space, Spin, Table, TableProps } from 'antd';
+import { Input, message, Popconfirm, Space, Spin, Table, TableProps, Tag } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { SorterResult } from 'antd/es/table/interface';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
@@ -59,11 +59,9 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
       },
       {
         title: 'Deleted',
-        dataIndex: 'deleted',
-        key: 'deleted',
-        render: (deleted: any) => (
-          <span className="whitespace-nowrap w-full flex justify-center">{deleted ? 'true' : 'false'}</span>
-        ),
+        dataIndex: 'isDeleted',
+        key: 'isDeleted',
+        render: (deleted: any) => <Tag color={deleted ? '#87d068' : '#f50'}>{deleted ? 'True' : 'False'}</Tag>,
         sorter: true,
         defaultSortOrder:
           searchParams.get('sortBy') === 'deleted'
@@ -88,28 +86,12 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
               <Space size="middle">
                 <Link to={'/' + name + '/' + record.id}>{formatMessage({ id: 'global.tips.edit' })}</Link>
 
-                <Popconfirm
-                  placement="left"
-                  title={formatMessage({ id: 'global.tips.deleteConfirm' })}
-                  onConfirm={() => {
-                    deleteItem(record.id);
-                  }}
-                  okText={formatMessage({ id: 'global.tips.yes' })}
-                  cancelText={formatMessage({ id: 'global.tips.no' })}
-                >
-                  <a className="flex items-center">
-                    {idDeleting === record.id && <Spin indicator={antIcon} />}&nbsp;
-                    {formatMessage({ id: 'global.tips.delete' })}
-                  </a>
-                </Popconfirm>
-
-                {record.deleted && (
+                {record.isDeleted ? (
                   <Popconfirm
                     placement="left"
                     title={formatMessage({ id: 'global.tips.recoverConfirm' })}
                     onConfirm={() => {
-                      // deleteItem(record.id);
-                      // to be update
+                      recoverItem(record.id);
                     }}
                     okText={formatMessage({ id: 'global.tips.yes' })}
                     cancelText={formatMessage({ id: 'global.tips.no' })}
@@ -117,6 +99,21 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
                     <a className="flex items-center">
                       {idDeleting == record.id && <Spin indicator={antIcon} />}&nbsp;
                       {formatMessage({ id: 'global.tips.recover' })}
+                    </a>
+                  </Popconfirm>
+                ) : (
+                  <Popconfirm
+                    placement="left"
+                    title={formatMessage({ id: 'global.tips.deleteConfirm' })}
+                    onConfirm={() => {
+                      deleteItem(record.id);
+                    }}
+                    okText={formatMessage({ id: 'global.tips.yes' })}
+                    cancelText={formatMessage({ id: 'global.tips.no' })}
+                  >
+                    <a className="flex items-center">
+                      {idDeleting === record.id && <Spin indicator={antIcon} />}&nbsp;
+                      {formatMessage({ id: 'global.tips.delete' })}
                     </a>
                   </Popconfirm>
                 )}
@@ -166,6 +163,21 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
 
       fetchData(params);
     }
+  };
+
+  const recoverItem = async (id: string) => {
+    setLoading(true);
+
+    await request<any[]>(
+      'patch',
+      '/' + (api || name) + '/' + id + '/restore',
+      {},
+      {
+        baseURL: import.meta.env.VITE_API_URL,
+      },
+    );
+
+    fetchData(params);
   };
 
   const fetchData = async (params: Params = {}, filter?: any) => {

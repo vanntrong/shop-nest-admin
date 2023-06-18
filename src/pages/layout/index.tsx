@@ -6,7 +6,6 @@ import HeaderComponent from './header';
 import { getGlobalState } from '@/utils/getGlobal';
 import { getMenuList } from '@/api/layout.api';
 import { MenuList, MenuChild } from '@/interface/layout/menu.interface';
-import { useGuide } from '../guide/useGuide';
 import { Outlet, useLocation } from 'react-router';
 import { setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,10 +19,9 @@ const LayoutPage: FC = () => {
   const [openKey, setOpenkey] = useState<string>();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
   const [menuList, setMenuList] = useState<MenuList>([]);
-  const { device, collapsed, newUser } = useSelector(state => state.user);
+  const { device, collapsed } = useSelector(state => state.user);
   const isMobile = device === 'MOBILE';
   const dispatch = useDispatch();
-  const { driverStart } = useGuide();
 
   useEffect(() => {
     const code = getFirstPathCode(location.pathname);
@@ -86,10 +84,6 @@ const LayoutPage: FC = () => {
       );
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    newUser && driverStart();
-  }, [newUser]);
 
   return (
     <Layout className="layout-page">

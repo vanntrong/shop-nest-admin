@@ -42,6 +42,39 @@ export const OrderPage: FC = () => {
       sorter: true,
     },
     {
+      title: 'Actual Price',
+      key: 'actualValue',
+      dataIndex: 'actualValue',
+      render: (actualValue: number) => numberToVND(actualValue),
+      sorter: true,
+    },
+    {
+      title: 'Point Earned',
+      key: 'pointEarned',
+      dataIndex: 'pointEarned',
+      sorter: true,
+      render(value: number) {
+        return `${value ?? 0} points`;
+      },
+    },
+    {
+      title: 'Point Used',
+      key: 'pointUsed',
+      dataIndex: 'pointUsed',
+      sorter: true,
+      render(value: number) {
+        return `${value ?? 0} points`;
+      },
+    },
+    {
+      title: 'Promotion Used',
+      key: 'promotionUsed',
+      dataIndex: 'promotionUsed',
+      render(promotionUsed: any) {
+        return promotionUsed ? promotionUsed.code : '-';
+      },
+    },
+    {
       title: 'Address',
       key: 'address',
       render(_, record: Order) {

@@ -4,18 +4,20 @@ import { LoginParams, Role } from '@/interface/user/login';
 import { Locale, User, UserState } from '@/interface/user/user';
 import { createAsyncAction } from './utils';
 import { getGlobalState } from '@/utils/getGlobal';
+import { getToken, saveToken } from '@/utils/cookies';
 
 const initialState: UserState = {
   ...getGlobalState(),
   noticeCount: 0,
   locale: (localStorage.getItem('locale')! || 'en_US') as Locale,
   newUser: JSON.parse(localStorage.getItem('newUser')!) ?? true,
-  logged: localStorage.getItem('token') ? true : false,
+  logged: getToken('access_token') ? true : false,
   menuList: [],
   username: localStorage.getItem('username') || '',
   role: (localStorage.getItem('username') || '') as Role,
-  accessToken: localStorage.getItem('token') || '',
+  accessToken: getToken('access_token') || '',
   user: null,
+  exp: 0,
 };
 
 const userSlice = createSlice({
@@ -23,10 +25,10 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setToken(state, action: PayloadAction<Partial<UserState>>) {
-      const { accessToken } = action.payload;
+      const { accessToken, exp } = action.payload;
 
       if (accessToken !== state.accessToken) {
-        localStorage.setItem('token', action.payload.accessToken || '');
+        saveToken('access_token', action.payload.accessToken ?? '', exp ?? 0);
       }
 
       Object.assign(state, action.payload);
@@ -78,11 +80,11 @@ export const loginAsync = createAsyncAction<LoginParams, boolean>(payload => {
 
     const token = data.tokens && data.tokens.access_token ? data.tokens.access_token : '';
 
-    dispatch(setToken({ accessToken: token }));
+    dispatch(setToken({ accessToken: token, exp: data.tokens.exp }));
     if (token) {
-      localStorage.setItem('username', data.user.full_name);
+      localStorage.setItem('username', data.data.name);
       localStorage.setItem('t', token);
-      dispatch(setUserItem({ logged: true, username: data.user.full_name }));
+      dispatch(setUserItem({ logged: true, username: data.data.name }));
     } else {
       localStorage.setItem('username', '');
       dispatch(setUserItem({ logged: false, username: '' }));

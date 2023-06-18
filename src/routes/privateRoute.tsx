@@ -11,6 +11,8 @@ const PrivateRoute: FC<RouteProps> = props => {
   const { formatMessage } = useLocale();
   const location = useLocation();
 
+  console.log({ logged });
+
   useEffect(() => {
     if (!logged) {
       navigate('/login');

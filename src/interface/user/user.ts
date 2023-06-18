@@ -46,4 +46,6 @@ export interface UserState {
   accessToken: string;
 
   user: User | null;
+
+  exp: number;
 }

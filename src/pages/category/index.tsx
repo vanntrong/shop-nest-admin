@@ -1,8 +1,8 @@
-import { apiDeleteCategory } from '@/api/category.api';
+import { apiDeleteCategory, apiRecoverCategory } from '@/api/category.api';
 import { WikiTable } from '@/components/wikiblock/table';
 import { Category } from '@/interface/category/category.interface';
 import { useLocale } from '@/locales';
-import { Button, Popconfirm, Space, Table, TableColumnsType } from 'antd';
+import { Button, Popconfirm, Space, Table, TableColumnsType, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { FC } from 'react';
@@ -32,6 +32,18 @@ export const CategoryPage: FC = () => {
         return record.subCategories?.length || 0;
       },
     },
+    {
+      title: 'Active',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (isActive: any) => <Tag color={isActive ? '#87d068' : '#f50'}>{isActive ? 'True' : 'False'}</Tag>,
+    },
+    {
+      title: 'Created By',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      render: (createdBy: any) => createdBy.name,
+    },
   ];
 
   const addCategory = () => {
@@ -42,6 +54,10 @@ export const CategoryPage: FC = () => {
 
   const deleteCategory = async (id: string) => {
     await apiDeleteCategory(id);
+  };
+
+  const recoverCategory = async (id: string) => {
+    await apiRecoverCategory(id);
   };
 
   const expandedRowRender = (record: Category) => {
@@ -74,12 +90,22 @@ export const CategoryPage: FC = () => {
         ),
       },
       {
+        title: 'Active',
+        dataIndex: 'isActive',
+        key: 'isActive',
+        render: (isActive: any) => <Tag color={isActive ? '#87d068' : '#f50'}>{isActive ? 'True' : 'False'}</Tag>,
+      },
+      {
+        title: 'Created By',
+        dataIndex: 'createdBy',
+        key: 'createdBy',
+        render: (createdBy: any) => createdBy.name,
+      },
+      {
         title: 'Deleted',
-        dataIndex: 'deleted',
-        key: 'deleted',
-        render: (deleted: any) => (
-          <span className="whitespace-nowrap w-full flex justify-center">{deleted ? 'true' : 'false'}</span>
-        ),
+        dataIndex: 'isDeleted',
+        key: 'isDeleted',
+        render: (deleted: any) => <Tag color={deleted ? '#87d068' : '#f50'}>{deleted ? 'True' : 'False'}</Tag>,
       },
       {
         title: 'Action',
@@ -87,17 +113,31 @@ export const CategoryPage: FC = () => {
         render: (_: any, record: any) => (
           <Space size="middle">
             <Link to={'/categories/' + record.id}>{formatMessage({ id: 'global.tips.edit' })}</Link>
-            <Popconfirm
-              placement="left"
-              title={formatMessage({ id: 'global.tips.deleteConfirm' })}
-              onConfirm={() => {
-                deleteCategory(record.id);
-              }}
-              okText={formatMessage({ id: 'global.tips.yes' })}
-              cancelText={formatMessage({ id: 'global.tips.no' })}
-            >
-              <a className="flex items-center">{formatMessage({ id: 'global.tips.delete' })}</a>
-            </Popconfirm>
+            {record.isDeleted ? (
+              <Popconfirm
+                placement="left"
+                title={formatMessage({ id: 'global.tips.recoverConfirm' })}
+                onConfirm={() => {
+                  recoverCategory(record.id);
+                }}
+                okText={formatMessage({ id: 'global.tips.yes' })}
+                cancelText={formatMessage({ id: 'global.tips.no' })}
+              >
+                <a className="flex items-center">{formatMessage({ id: 'global.tips.recover' })}</a>
+              </Popconfirm>
+            ) : (
+              <Popconfirm
+                placement="left"
+                title={formatMessage({ id: 'global.tips.deleteConfirm' })}
+                onConfirm={() => {
+                  deleteCategory(record.id);
+                }}
+                okText={formatMessage({ id: 'global.tips.yes' })}
+                cancelText={formatMessage({ id: 'global.tips.no' })}
+              >
+                <a className="flex items-center">{formatMessage({ id: 'global.tips.delete' })}</a>
+              </Popconfirm>
+            )}
           </Space>
         ),
       },

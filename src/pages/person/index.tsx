@@ -17,6 +17,11 @@ export const PersonPage: FC = () => {
       render: avatar => <ImagePreview src={avatar} alt={''} text={''} />,
     },
     {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',

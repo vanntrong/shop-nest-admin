@@ -1,6 +1,6 @@
 import { apiAddCategory, apiGetCategoryItem, apiGetParentCategories, apiUpdateCategory } from '@/api/category.api';
 import { useLocale } from '@/locales';
-import { Button, Form, Input, Select, message } from 'antd';
+import { Button, Form, Input, Select, Switch, message } from 'antd';
 import 'antd/dist/antd.css';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -80,20 +80,26 @@ export const CategoryDetailPage: FC = () => {
     <div className="p-3 bg-white">
       <Form form={form} name="control-hooks" onFinish={onFinish}>
         <div className="flex items-center gap-x-[20px]">
-          <FormItem name="name" label="Name" className="flex-1" labelWidth={80}>
+          <FormItem name="name" label="Name" className="flex-1">
             <TextArea rows={4} />
           </FormItem>
         </div>
 
         <div className="flex items-center gap-x-[20px]">
-          <FormItem name="description" label="Description" className="flex-1" labelWidth={80}>
+          <FormItem name="isActive" label="Is Active" className="flex-1" valuePropName="checked">
+            <Switch />
+          </FormItem>
+        </div>
+
+        <div className="flex items-center gap-x-[20px]">
+          <FormItem name="description" label="Description" className="flex-1">
             <TextArea rows={4} />
           </FormItem>
         </div>
 
         {dataItem && (
           <div className="flex items-center gap-x-[20px]">
-            <FormItem name="parentId" label="Parent" className="flex-1" labelWidth={80}>
+            <FormItem name="parentId" label="Parent" className="flex-1">
               <Select
                 style={{ width: '100%' }}
                 placeholder="Select Parent"

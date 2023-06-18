@@ -3,7 +3,7 @@ import { LoginResult, LoginParams, LogoutParams, LogoutResult } from '@/interfac
 
 /** 登录接口 */
 export const apiLogin = (data: LoginParams) =>
-  request<LoginResult>('post', 'public/auth/login', data, { baseURL: import.meta.env.VITE_API_URL });
+  request<LoginResult>('post', '/auth/login', data, { baseURL: import.meta.env.VITE_API_URL });
 
 /** 登出接口 */
 export const apiLogout = (data: LogoutParams) => request<LogoutResult>('post', '/user/logout', data);

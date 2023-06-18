@@ -33,6 +33,9 @@ export const apiUpdateCategory = (id: string, data: Category) =>
 export const apiDeleteCategory = (id: string) =>
   request<GetCategoryResult>('delete', '/categories/' + id, {}, { baseURL: import.meta.env.VITE_API_URL });
 
+export const apiRecoverCategory = (id: string) =>
+  request<GetCategoryResult>('patch', '/categories/' + id + '/restore', {}, { baseURL: import.meta.env.VITE_API_URL });
+
 // For Combobox
 export const apiGetCategorySelectBox = (
   params: RequestParams & { type?: string; rank?: number } = {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, DatePicker, Divider, Form, Input, message, Select } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, message, Select, Switch } from 'antd';
 import 'antd/dist/antd.css';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -191,6 +191,12 @@ export const ProductDetailPage: FC = () => {
 
           <div className="flex-1"></div>
         </FormItemWrapper>
+
+        <div className="flex items-center gap-x-[20px]">
+          <FormItem name="isActive" label="Is Active" className="flex-1" valuePropName="checked">
+            <Switch />
+          </FormItem>
+        </div>
         <FormItem
           label="ThumbnailUrl"
           valuePropName="fileList"
