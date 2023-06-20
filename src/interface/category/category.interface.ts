@@ -12,6 +12,7 @@ export interface Category {
   created_by: string;
   weight: number;
   subCategories: Category[];
+  slug: string;
 }
 
 export type GetCategoryResult = { total_count: number; items: Category[] };

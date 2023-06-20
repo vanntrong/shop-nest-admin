@@ -8,7 +8,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale } from '@/locales';
 import dayjs from 'dayjs';
 import { createSearchParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { debounce, omit } from 'lodash';
+import { debounce, isNil, isUndefined, omit, omitBy } from 'lodash';
 
 interface Props extends TableProps<any> {
   name: string;
@@ -16,6 +16,7 @@ interface Props extends TableProps<any> {
   api?: string;
   filter?: any;
   hideActions?: boolean;
+  defaultParams?: Params;
 }
 
 interface Params {
@@ -25,11 +26,13 @@ interface Params {
   sortField?: string;
   sortOrder?: string;
   keyword?: string;
+  minLevel?: number;
+  maxLevel?: number;
 }
 
 const { Search } = Input;
 
-export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions = false, ...props }) => {
+export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions = false, defaultParams, ...props }) => {
   const { formatMessage } = useLocale();
   const [idDeleting, setIdDeleting] = useState('');
   const antIcon = <LoadingOutlined style={{ fontSize: 15 }} spin />;
@@ -128,11 +131,13 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
       current: 1,
       pageSize: 10,
     },
+    ...defaultParams,
   });
   const sortDefault = 'createdAt';
 
   useEffect(() => {
     setParams({
+      ...params,
       pagination: {
         current: Number(searchParams.get('offset')) || 1,
         pageSize: Number(searchParams.get('limit')) || 10,
@@ -209,6 +214,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
         setLoading(false);
         setData(data);
         setParams(prev => ({
+          ...prev,
           pagination: {
             current: params?.pagination?.current || prev.pagination?.current,
             pageSize: params.pagination?.pageSize || prev.pagination?.pageSize,
@@ -256,6 +262,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
     navigate({
       pathname: '/' + name,
       search: `${createSearchParams({
+        ...omitBy(omit(params, 'pagination'), [isNil, isUndefined]),
         offset: newPagination.current?.toString() || '1',
         limit: newPagination.pageSize?.toString() || '10',
         sortBy: !order ? sortDefault : (field as string),
@@ -264,6 +271,7 @@ export const WikiTable: FC<Props> = ({ name, columns, api, filter, hideActions =
     });
 
     fetchData({
+      ...params,
       pagination: newPagination,
       ...filters,
       sortField: !order ? sortDefault : (field as string),

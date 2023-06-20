@@ -176,6 +176,10 @@ export const CategoryPage: FC = () => {
           expandedRowRender,
           rowExpandable: record => record.subCategories && record.subCategories.length > 0,
         }}
+        defaultParams={{
+          maxLevel: 1,
+          minLevel: 1,
+        }}
       />
     </div>
   );

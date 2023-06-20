@@ -40,12 +40,11 @@ export const ProductDetailPage: FC = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>();
   const [images, setImages] = useState<any>([]);
 
-  const fetchCategory = async (search?: string) => {
-    const { data = [] }: any = await apiGetCategorySelectBox({
-      keyword: search,
-    });
+  const fetchCategory = async () => {
+    const { data = [] }: any = await apiGetCategorySelectBox();
 
     if (data) {
+      console.log(data);
       const categories = formatCategoriesData(data);
 
       setCategories(categories);
@@ -143,10 +142,10 @@ export const ProductDetailPage: FC = () => {
   };
 
   useEffect(() => {
+    fetchCategory();
     if (id) {
       fetchItem(id);
     }
-    fetchCategory();
   }, [id]);
 
   const onFinish = (values: any) => {

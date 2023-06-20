@@ -27,7 +27,10 @@ export const ProductPage: FC = () => {
   const [isContentReady, setIsContentReady] = useState(false);
 
   const fetchCategory = async () => {
-    const { data = [] }: any = await apiGetCategorySelectBox();
+    const { data = [] }: any = await apiGetCategorySelectBox({
+      limit: 1000,
+      offset: 0,
+    });
 
     if (data) {
       const categories = formatCategoriesData(data);
@@ -74,7 +77,7 @@ export const ProductPage: FC = () => {
       dataIndex: 'category',
       key: 'category',
       filterSearch: true,
-      filters: categories!.map((category: Category) => ({ text: category.name, value: category.id })),
+      filters: categories!.map((category: Category) => ({ text: category.name, value: category.slug })),
 
       render: (category: Category) => {
         return <Tag>{category.name}</Tag>;
@@ -145,7 +148,7 @@ export const ProductPage: FC = () => {
           {formatMessage({ id: 'app.product.list.add_product' })}
         </Button>
       </div>
-      {isContentReady && <WikiTable name="product" columns={columns} api="products" />}
+      {isContentReady && <WikiTable name="products" columns={columns} api="products" />}
     </div>
   );
 };

@@ -92,6 +92,18 @@ export const CategoryDetailPage: FC = () => {
         </div>
 
         <div className="flex items-center gap-x-[20px]">
+          <FormItem name="isShowAtHome" label="Is Show At Home" className="flex-1" valuePropName="checked">
+            <Switch />
+          </FormItem>
+        </div>
+
+        <div className="flex items-center gap-x-[20px]">
+          <FormItem name="isAtSidebar" label="Is At Sidebar" className="flex-1" valuePropName="checked">
+            <Switch />
+          </FormItem>
+        </div>
+
+        <div className="flex items-center gap-x-[20px]">
           <FormItem name="description" label="Description" className="flex-1">
             <TextArea rows={4} />
           </FormItem>
