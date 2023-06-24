@@ -18,6 +18,7 @@ import { isEmpty, isNil, omitBy, range } from 'lodash';
 import styled from 'styled-components';
 import { formatCategoriesData } from '.';
 import EditorV2 from '@/components/editorV2';
+import moment from 'moment';
 
 const { Option } = Select;
 
@@ -44,7 +45,6 @@ export const ProductDetailPage: FC = () => {
     const { data = [] }: any = await apiGetCategorySelectBox();
 
     if (data) {
-      console.log(data);
       const categories = formatCategoriesData(data);
 
       setCategories(categories);
@@ -61,6 +61,7 @@ export const ProductDetailPage: FC = () => {
 
       form.setFieldsValue({
         ...item,
+        saleEndAt: item.saleEndAt ? moment(item.saleEndAt) : undefined,
         categoryId: item.category?.id,
       });
       setDataItem(item);

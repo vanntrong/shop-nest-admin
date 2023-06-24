@@ -41,8 +41,8 @@ export const apiGetCategorySelectBox = (
   params: RequestParams & { type?: string; rank?: number } = {
     offset: 0,
     limit: 999999,
-    sort_by: 'id',
-    sort_order: 'ASC',
+    sortBy: 'id',
+    sortOrder: 'asc',
   },
 ) => request<GetCategoryResult>('get', '/categories', {}, { baseURL: import.meta.env.VITE_API_URL, params });
 export const apiSearchCategory = (

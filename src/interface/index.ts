@@ -18,6 +18,8 @@ export interface RequestParams {
   offset?: number;
   limit?: number;
   sort_by?: string;
+  sortBy?: string;
+  sortOrder?: string;
   sort_order?: 'DESC' | 'ASC';
   keyword?: string;
   lang?: string;
