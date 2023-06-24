@@ -36,7 +36,7 @@ const TYPE_PROMOTIONS_OPTIONS = [
 export const PromotionDetailPage: FC = () => {
   const { formatMessage } = useLocale();
   const navigate = useNavigate();
-  const [dataItem, setDataItem] = useState<any>({});
+  // const [dataItem, setDataItem] = useState<any>({});
   const { id } = useParams();
   const [form] = Form.useForm();
   const [typePromotion, setTypePromotion] = useState<string>();
@@ -53,7 +53,7 @@ export const PromotionDetailPage: FC = () => {
       form.setFieldsValue({
         ...item,
       });
-      setDataItem(item);
+      // setDataItem(item);
     }
   };
 

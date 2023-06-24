@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import React from 'react';
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
+// @ts-ignore
 import Editor from 'ckeditor5-custom-build/build/ckeditor';
 
 interface EditorV2Props {
@@ -13,11 +16,8 @@ const EditorV2 = ({ data, onChange }: EditorV2Props) => {
     <CKEditor
       editor={Editor}
       data={data}
-      onReady={editor => {
-        // You can store the "editor" and use when it is needed.
-        console.log('Editor is ready to use!', editor);
-      }}
       onChange={(event, editor) => {
+        // @ts-ignore
         const data = editor.getData();
 
         onChange?.(data);

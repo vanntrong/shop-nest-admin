@@ -84,5 +84,8 @@
     "vite": "^2.6.4",
     "vite-plugin-imp": "^2.0.10",
     "vite-plugin-svgr": "^0.6.0"
+  },
+  "resolutions": {
+    "@types/react": "17.0.44"
   }
 }

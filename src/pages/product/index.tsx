@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 export const formatCategoriesData = (data: any) => {
   if (!data || !data.length) return [];
 
-  return data.reduce((acc, next) => {
+  return data.reduce((acc: any, next: any) => {
     const { subCategories, ...rest } = next;
 
     return [...acc, rest, ...formatCategoriesData(subCategories)];

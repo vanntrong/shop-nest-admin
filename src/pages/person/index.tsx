@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import ImagePreview from '@/components/wikiblock/image-preview';
 import { WikiTable } from '@/components/wikiblock/table';
 import { Person } from '@/interface/person/person.interface';
@@ -57,6 +58,7 @@ export const PersonPage: FC = () => {
             addPerson();
           }}
         >
+          {/* @ts-ignore */}
           {formatMessage({ id: 'app.person.list.add_person' })}
         </Button>
       </div>
