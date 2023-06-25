@@ -65,6 +65,10 @@ export const PromotionDetailPage: FC = () => {
       data.maxValue = Number(data.maxValue);
     }
 
+    if (data.maxUsedTimes) {
+      data.maxUsedTimes = Number(data.maxUsedTimes);
+    }
+
     if (detailId) {
       // Update
       result = await apiUpdatePromotion(detailId, data);
