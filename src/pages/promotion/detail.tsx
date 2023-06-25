@@ -60,6 +60,11 @@ export const PromotionDetailPage: FC = () => {
   const updateItem = async (data: any, detailId?: string) => {
     let result: any;
 
+    data.value = Number(data.value);
+    if (data.maxValue) {
+      data.maxValue = Number(data.maxValue);
+    }
+
     if (detailId) {
       // Update
       result = await apiUpdatePromotion(detailId, data);
