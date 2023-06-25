@@ -58,7 +58,7 @@ jobs:
         run: docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Stop Docker container
-        run: docker stop $DOCKER_CONTAINER_NAME || true
+        run: docker stop $DOCKER_CONTAINER_NAME || true && docker rm $DOCKER_CONTAINER_NAME || true
 
       - name: Run Docker container
         env:
