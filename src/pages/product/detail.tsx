@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, DatePicker, Divider, Form, Input, message, Select, Switch } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, InputNumber, message, Select, Switch } from 'antd';
 import 'antd/dist/antd.css';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -87,6 +87,7 @@ export const ProductDetailPage: FC = () => {
       }
     }
 
+    console.log(data);
     data = {
       ...omitBy(data, value => {
         if (typeof value === 'string') {
@@ -298,7 +299,12 @@ export const ProductDetailPage: FC = () => {
               },
             ]}
           >
-            <Input type="number" />
+            <InputNumber
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
@@ -313,7 +319,12 @@ export const ProductDetailPage: FC = () => {
               },
             ]}
           >
-            <Input type="number" />
+            <InputNumber
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
@@ -328,14 +339,24 @@ export const ProductDetailPage: FC = () => {
               },
             ]}
           >
-            <Input type="number" />
+            <InputNumber
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>
 
         <FormItemWrapper>
           <FormItem label="Sale Price(VND)" name="salePrice">
-            <Input type="number" />
+            <InputNumber
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
           <div className="flex-1"></div>
         </FormItemWrapper>

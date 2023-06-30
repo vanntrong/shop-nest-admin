@@ -1,10 +1,11 @@
 import { apiAddPromotion, apiGetPromotionItem, apiUpdatePromotion } from '@/api/promotion.api';
 import { useLocale } from '@/locales';
-import { Button, DatePicker, Form, Input, Select, Switch, message } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Select, Switch, message } from 'antd';
 import 'antd/dist/antd.css';
 import { RangePickerProps } from 'antd/lib/date-picker';
 import dayjs from 'dayjs';
 import { range } from 'lodash';
+import moment from 'moment';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -52,6 +53,7 @@ export const PromotionDetailPage: FC = () => {
 
       form.setFieldsValue({
         ...item,
+        expiredAt: item.expiredAt ? moment(item.expiredAt) : undefined,
       });
       // setDataItem(item);
     }
@@ -246,7 +248,13 @@ export const PromotionDetailPage: FC = () => {
               },
             ]}
           >
-            <Input disabled={!!id || discountFor === 'shipping'} type="number" />
+            <InputNumber
+              disabled={!!id || discountFor === 'shipping'}
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
         </div>
 
@@ -262,14 +270,25 @@ export const PromotionDetailPage: FC = () => {
 
         <div className="flex items-center gap-x-[20px]">
           <FormItem name="maxUsedTimes" label="Max Used Times" className="flex-1">
-            <Input disabled={!!id} type="number" />
+            <InputNumber
+              disabled={!!id}
+              type="number"
+              style={{
+                width: '100%',
+              }}
+            />
           </FormItem>
         </div>
 
         {id && (
           <div className="flex items-center gap-x-[20px]">
             <FormItem name="usedTimes" label="Used Times" className="flex-1">
-              <Input disabled={true} />
+              <InputNumber
+                disabled={true}
+                style={{
+                  width: '100%',
+                }}
+              />
             </FormItem>
           </div>
         )}
