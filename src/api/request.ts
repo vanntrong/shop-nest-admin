@@ -94,6 +94,7 @@ export const request = <T = any>(
   const _config = config as AxiosRequestConfig;
   const token = store.getState().user.accessToken;
 
+  console.log('config', config);
   if (token) _config.headers = { Authorization: `Bearer ${token}` };
 
   switch (method) {

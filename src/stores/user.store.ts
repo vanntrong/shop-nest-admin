@@ -4,7 +4,7 @@ import { LoginParams, Role } from '@/interface/user/login';
 import { Locale, User, UserState } from '@/interface/user/user';
 import { createAsyncAction } from './utils';
 import { getGlobalState } from '@/utils/getGlobal';
-import { getToken, saveToken } from '@/utils/cookies';
+import { clearCookies, getToken, saveToken } from '@/utils/cookies';
 
 const initialState: UserState = {
   ...getGlobalState(),
@@ -96,19 +96,15 @@ export const loginAsync = createAsyncAction<LoginParams, boolean>(payload => {
 
 export const logoutAsync = () => {
   return async (dispatch: Dispatch) => {
-    const { status } = await apiLogout({ token: localStorage.getItem('t')! });
+    await apiLogout();
 
-    if (status) {
-      localStorage.clear();
-      dispatch(
-        setUserItem({
-          logged: false,
-        }),
-      );
+    clearCookies();
+    dispatch(
+      setUserItem({
+        logged: false,
+      }),
+    );
 
-      return true;
-    }
-
-    return false;
+    return true;
   };
 };
