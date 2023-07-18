@@ -14,6 +14,7 @@ import { ProductDetailPage } from '@/pages/product/detail';
 import { OrderPage } from '@/pages/order';
 import { PromotionPage } from '@/pages/promotion';
 import { PromotionDetailPage } from '@/pages/promotion/detail';
+import OrderDetail from '@/pages/order/detail';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const { logged } = useSelector(state => state.user);
@@ -61,6 +62,10 @@ const routeList: RouteObject[] = [
       {
         path: 'orders',
         element: <WrapperRouteComponent element={<OrderPage />} auth={true} titleId="title.account" />,
+      },
+      {
+        path: 'orders/:id',
+        element: <WrapperRouteComponent element={<OrderDetail />} auth={true} titleId="title.account" />,
       },
 
       {

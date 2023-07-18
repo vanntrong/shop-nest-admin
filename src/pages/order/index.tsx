@@ -1,12 +1,19 @@
 import { WikiTable } from '@/components/wikiblock/table';
-import { Order, STATUS_COLOR, STATUS_ORDER } from '@/interface/order/order.interface';
+import { Order, OrderStatus, STATUS_COLOR, STATUS_ORDER } from '@/interface/order/order.interface';
 import { numberToVND } from '@/utils/number';
 import { Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 export const OrderPage: FC = () => {
   const columns: ColumnsType<Order> = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+      key: 'id',
+      render: (id: number) => <Link to={`/orders/${id}`}>{id}</Link>,
+    },
     {
       title: 'Name',
       dataIndex: 'name',
@@ -85,7 +92,20 @@ export const OrderPage: FC = () => {
       title: 'Status',
       key: 'statusId',
       dataIndex: 'statusId',
-      render(value: number) {
+      render(value: number, record: Order) {
+        if (record.status === OrderStatus.PENDING)
+          return (
+            <Tag color="blue" className="capitalize">
+              {OrderStatus.PENDING}
+            </Tag>
+          );
+        if (record.status === OrderStatus.CANCELLED)
+          return (
+            <Tag color="red" className="capitalize">
+              {OrderStatus.CANCELLED}
+            </Tag>
+          );
+
         return <Tag color={STATUS_COLOR[value]}>{STATUS_ORDER[value]}</Tag>;
       },
     },

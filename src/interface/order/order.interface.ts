@@ -1,3 +1,8 @@
+export enum OrderStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  CANCELLED = 'cancelled',
+}
 export interface Order {
   id: string;
   name: string;
@@ -13,6 +18,7 @@ export interface Order {
   createdAt: Date;
   updatedAt: Date | null;
   orderProducts: OrderProduct[];
+  status: string;
 }
 
 export interface OrderProduct {

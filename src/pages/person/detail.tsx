@@ -155,7 +155,7 @@ export const PersonDetailPage: FC = () => {
   );
 };
 
-const FormItem = styled(Form.Item)<any>`
+export const FormItem = styled(Form.Item)<any>`
   .ant-form-item-label label {
     width: ${({ labelWidth }) => `${labelWidth ? labelWidth : '140'}px`};
   }
