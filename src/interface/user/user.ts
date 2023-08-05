@@ -44,6 +44,7 @@ export interface UserState {
   newUser: boolean;
 
   accessToken: string;
+  refreshToken: string;
 
   user: User | null;
 

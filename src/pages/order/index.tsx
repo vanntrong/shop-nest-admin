@@ -1,7 +1,7 @@
 import { WikiTable } from '@/components/wikiblock/table';
-import { Order, OrderStatus, STATUS_COLOR, STATUS_ORDER } from '@/interface/order/order.interface';
+import { Order, OrderStatus } from '@/interface/order/order.interface';
 import { numberToVND } from '@/utils/number';
-import { Tag } from 'antd';
+import { Badge, Tag } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -12,7 +12,17 @@ export const OrderPage: FC = () => {
       title: 'Id',
       dataIndex: 'id',
       key: 'id',
-      render: (id: number) => <Link to={`/orders/${id}`}>{id}</Link>,
+      render: (id: number, record: Order) => {
+        if (record.status === OrderStatus.PENDING) {
+          return (
+            <Badge.Ribbon text="Pending" placement="end">
+              <Link to={`/orders/${id}`}>{id}</Link>;
+            </Badge.Ribbon>
+          );
+        }
+
+        return <Link to={`/orders/${id}`}>{id}</Link>;
+      },
     },
     {
       title: 'Name',
@@ -90,23 +100,23 @@ export const OrderPage: FC = () => {
     },
     {
       title: 'Status',
-      key: 'statusId',
-      dataIndex: 'statusId',
+      key: 'status',
+      dataIndex: 'status',
       render(value: number, record: Order) {
         if (record.status === OrderStatus.PENDING)
           return (
             <Tag color="blue" className="capitalize">
-              {OrderStatus.PENDING}
+              {record.statusDetail}
             </Tag>
           );
         if (record.status === OrderStatus.CANCELLED)
           return (
             <Tag color="red" className="capitalize">
-              {OrderStatus.CANCELLED}
+              {record.statusDetail}
             </Tag>
           );
 
-        return <Tag color={STATUS_COLOR[value]}>{STATUS_ORDER[value]}</Tag>;
+        return <Tag color={'#26aa99'}>{record.statusDetail}</Tag>;
       },
     },
   ];

@@ -9,9 +9,9 @@ type TokenName = 'access_token' | 'refresh_token' | 'id_token';
  * @param value Token value
  * @param expiresIn Token expires in (seconds)
  */
-export const saveToken = (name: TokenName, value: string, expiresIn: number): string | undefined => {
+export const saveToken = (name: TokenName, value: string, expiresIn?: number): string | undefined => {
   return Cookies.set(name, value, {
-    expires: new Date(new Date().getTime() + expiresIn * 1000),
+    expires: expiresIn ? new Date(new Date().getTime() + expiresIn * 1000) : undefined,
   });
 };
 

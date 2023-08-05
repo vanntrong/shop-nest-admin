@@ -19,6 +19,7 @@ export interface Order {
   updatedAt: Date | null;
   orderProducts: OrderProduct[];
   status: string;
+  statusDetail: string;
 }
 
 export interface OrderProduct {

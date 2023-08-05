@@ -1,19 +1,16 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { message as $message } from 'antd';
 import store from '@/stores';
+import { setToken } from '@/stores/user.store';
+import { clearCookies, getToken } from '@/utils/cookies';
+import { message as $message } from 'antd';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { TRefreshTokenResponse, refreshToken } from './user.api';
 
 const axiosInstance = axios.create({
   timeout: 6000,
 });
 
 axiosInstance.interceptors.request.use(
-  config => {
-    // store.dispatch(
-    //   setGlobalState({
-    //     loading: true,
-    //   }),
-    // );
-
+  async config => {
     return config;
   },
   error => {
@@ -26,31 +23,20 @@ axiosInstance.interceptors.response.use(
     const token = store.getState().user.accessToken;
 
     axiosInstance.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : '';
-    // store.dispatch(
-    //   setGlobalState({
-    //     loading: false,
-    //   }),
-    // );
+
     if (config?.data?.message) {
       switch (config.config.method) {
         case 'delete':
           break;
         case 'put':
-          //$message.info(formatMessage({ id: 'global.tips.deleteSuccess' }).replace('{0}', 'id'));
           break;
         case 'post':
       }
-      // $message.success(config.data.message)
     }
 
     return config?.data;
   },
   error => {
-    // store.dispatch(
-    //   setGlobalState({
-    //     loading: false,
-    //   }),
-    // );
     let errMsg = 'Error';
 
     if (error.response && error.response.data) {
@@ -58,6 +44,8 @@ axiosInstance.interceptors.response.use(
 
       errMsg = message[0];
     }
+
+    console.log(error);
 
     $message.error(errMsg);
 
@@ -75,24 +63,58 @@ type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 export type MyResponse<T = any> = Promise<Response<T>>;
 
+const handleRefreshToken = (token: string) => {
+  return refreshToken(token);
+};
+
+let refreshHandler: Promise<AxiosResponse<TRefreshTokenResponse>> | null = null;
+
 /**
  *
  * @param method - request methods
  * @param url - request url
  * @param data - request data or params
  */
-export const request = <T = any>(
+export const request = async <T = any>(
   method: Method,
   url: string,
   data?: any,
   config?: AxiosRequestConfig,
 ): MyResponse<T> => {
-  // const prefix = '/api'
   const prefix = '';
 
   url = prefix + url;
   const _config = config as AxiosRequestConfig;
-  const token = store.getState().user.accessToken;
+  let token: string | undefined = getToken('access_token');
+
+  const rfToken = getToken('refresh_token');
+
+  const isTokenExpired = token === undefined && rfToken !== undefined;
+
+  console.log({ isTokenExpired, rfToken, token });
+
+  if (isTokenExpired && rfToken) {
+    try {
+      refreshHandler = refreshHandler ? refreshHandler : handleRefreshToken(rfToken);
+
+      const response = await refreshHandler;
+
+      refreshHandler = null;
+      if (response) {
+        store.dispatch(
+          setToken({
+            refreshToken: response.data.tokens.refresh_token,
+            accessToken: response.data.tokens.access_token,
+            exp: response.data.tokens.exp,
+          }),
+        );
+        token = response.data.tokens.access_token;
+      }
+    } catch (error) {
+      clearCookies();
+      token = undefined;
+    }
+  }
 
   console.log('config', config);
   if (token) _config.headers = { Authorization: `Bearer ${token}` };

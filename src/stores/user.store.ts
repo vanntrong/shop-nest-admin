@@ -16,6 +16,7 @@ const initialState: UserState = {
   username: localStorage.getItem('username') || '',
   role: (localStorage.getItem('username') || '') as Role,
   accessToken: getToken('access_token') || '',
+  refreshToken: getToken('refresh_token') || '',
   user: null,
   exp: 0,
 };
@@ -25,10 +26,14 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setToken(state, action: PayloadAction<Partial<UserState>>) {
-      const { accessToken, exp } = action.payload;
+      const { accessToken, exp, refreshToken } = action.payload;
 
       if (accessToken !== state.accessToken) {
         saveToken('access_token', action.payload.accessToken ?? '', exp ?? 0);
+      }
+
+      if (refreshToken !== state.refreshToken) {
+        saveToken('refresh_token', action.payload.refreshToken ?? '');
       }
 
       Object.assign(state, action.payload);
@@ -79,8 +84,9 @@ export const loginAsync = createAsyncAction<LoginParams, boolean>(payload => {
     const data: any = await apiLogin(payload);
 
     const token = data.tokens && data.tokens.access_token ? data.tokens.access_token : '';
+    const refreshToken = data.tokens && data.tokens.refresh_token ? data.tokens.refresh_token : '';
 
-    dispatch(setToken({ accessToken: token, exp: data.tokens.exp }));
+    dispatch(setToken({ accessToken: token, refreshToken: refreshToken, exp: data.tokens.exp }));
     if (token) {
       localStorage.setItem('username', data.data.name);
       localStorage.setItem('t', token);
