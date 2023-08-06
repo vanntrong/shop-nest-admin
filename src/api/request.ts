@@ -91,8 +91,6 @@ export const request = async <T = any>(
 
   const isTokenExpired = token === undefined && rfToken !== undefined;
 
-  console.log({ isTokenExpired, rfToken, token });
-
   if (isTokenExpired && rfToken) {
     try {
       refreshHandler = refreshHandler ? refreshHandler : handleRefreshToken(rfToken);

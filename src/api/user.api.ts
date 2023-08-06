@@ -1,6 +1,7 @@
 import { LoginParams, LoginResult, LogoutResult } from '@/interface/user/login';
 import { request } from './request';
 import axios, { AxiosResponse } from 'axios';
+import { getToken } from '@/utils/cookies';
 
 /** 登录接口 */
 export const apiLogin = (data: LoginParams) =>
@@ -8,7 +9,12 @@ export const apiLogin = (data: LoginParams) =>
 
 /** 登出接口 */
 export const apiLogout = () =>
-  request<LogoutResult>('post', '/auth/logout', {}, { baseURL: import.meta.env.VITE_API_URL });
+  request<LogoutResult>(
+    'post',
+    '/auth/logout',
+    { refreshToken: getToken('refresh_token') },
+    { baseURL: import.meta.env.VITE_API_URL },
+  );
 
 // import { API_URL } from '@/configs/app.config';
 
