@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: ['develop']
+    branches: ['main']
 
 env:
   ECR_REGION: ap-southeast-1
@@ -33,10 +33,10 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: shop-nests
           IMAGE_TAG: ${{ github.sha }}
-        run: docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg SCRIPT_NAME=dev . && docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        run: docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg SCRIPT_NAME=prod . && docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
   pull-and-run:
-    runs-on: development
+    runs-on: production
     needs: build-and-push-image
     steps:
       - name: Configure AWS credentials
