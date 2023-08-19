@@ -40,9 +40,9 @@ axiosInstance.interceptors.response.use(
     let errMsg = 'Error';
 
     if (error.response && error.response.data) {
-      const { message = ['Error'] } = error.response.data;
+      const { message = 'error' } = error.response.data;
 
-      errMsg = message[0];
+      errMsg = message;
     }
 
     console.log(error);
