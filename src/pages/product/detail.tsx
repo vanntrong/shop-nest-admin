@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, DatePicker, Divider, Form, Input, InputNumber, message, Select, Switch } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, InputNumber, message, Select, Space, Switch } from 'antd';
 import 'antd/dist/antd.css';
 import { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -63,6 +63,7 @@ export const ProductDetailPage: FC = () => {
         ...item,
         saleEndAt: item.saleEndAt ? moment(item.saleEndAt) : undefined,
         categoryId: item.category?.id,
+        articles: data.articles.map((a: any) => a.articleUrl),
       });
       setDataItem(item);
       setImages(item.images);
@@ -365,6 +366,52 @@ export const ProductDetailPage: FC = () => {
           <FormItem label="Sale End At" name="saleEndAt">
             <DatePicker showTime disabledTime={disabledDateTime} disabledDate={disabledDate} />
           </FormItem>
+          <div className="flex-1"></div>
+        </FormItemWrapper>
+        <FormItemWrapper>
+          <FormItem label="Articles">
+            <Form.List name="articles">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(field => (
+                    <>
+                      <div className="flex gap-2">
+                        <FormItem
+                          {...field}
+                          name={[field.name]}
+                          fieldKey={[field.fieldKey]}
+                          rules={[
+                            {
+                              required: true,
+                            },
+                          ]}
+                          style={{ flex: 1 }}
+                        >
+                          <Input />
+                        </FormItem>
+                        <Button
+                          type="dashed"
+                          onClick={() => remove(field.name)}
+                          block
+                          style={{
+                            width: 'fit-content',
+                          }}
+                        >
+                          Remove Article
+                        </Button>
+                      </div>
+                    </>
+                  ))}
+                  <FormItem>
+                    <Button type="dashed" onClick={() => add()} block>
+                      Add Article
+                    </Button>
+                  </FormItem>
+                </>
+              )}
+            </Form.List>
+          </FormItem>
+
           <div className="flex-1"></div>
         </FormItemWrapper>
 
