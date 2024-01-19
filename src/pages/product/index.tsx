@@ -131,7 +131,7 @@ export const ProductPage: FC = () => {
     },
   ];
   const addProduct = () => {
-    const path = `/product/add`;
+    const path = `/products/add`;
 
     return navigate(path);
   };
